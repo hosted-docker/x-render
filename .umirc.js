@@ -96,5 +96,5 @@ export default defineConfig({
   plugins: [require.resolve('./scripts/dumi-plugin/redirect')],
   // more config: https://d.umijs.org/config
   base: '/mirror/x-render',
-  publicPath: '/',
+  publicPath: '/mirror/x-render/'
 });
