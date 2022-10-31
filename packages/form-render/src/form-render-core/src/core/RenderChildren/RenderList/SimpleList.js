@@ -6,6 +6,7 @@ import {
 } from '@ant-design/icons';
 import { Button, Popconfirm } from 'antd';
 import React from 'react';
+import { useTools } from '../../../hooks';
 import Core from '../../index';
 
 const SimpleList = ({
@@ -20,7 +21,12 @@ const SimpleList = ({
   moveItemDown,
   getFieldsProps,
 }) => {
-  const { props = {}, itemProps } = schema;
+  const { props = {}, itemProps, min = 0, max = 99999 } = schema;
+  const { widgets } = useTools();
+
+  const CustomAddBtn = widgets[schema['add-widget']];
+
+  const AddWidget = CustomAddBtn || Button;
 
   let addBtnProps = {
     type: 'dashed',
@@ -28,14 +34,16 @@ const SimpleList = ({
   };
 
   let delConfirmProps = {
-    title: "确定删除?",
-    okText:"确定",
-    cancelText: "取消",
-  }
+    title: '确定删除?',
+    okText: '确定',
+    cancelText: '取消',
+  };
 
   if (props.addBtnProps && typeof props.addBtnProps === 'object') {
     addBtnProps = { ...addBtnProps, ...props.addBtnProps };
   }
+
+  addBtnProps.onClick = addItem;
 
   if (props.delConfirmProps && typeof props.delConfirmProps === 'object') {
     delConfirmProps = { ...delConfirmProps, ...props.delConfirmProps };
@@ -53,7 +61,7 @@ const SimpleList = ({
           <div key={idx} style={{ display: 'flex' }}>
             <Core {...fieldsProps} />
             <div style={{ marginTop: 6 }}>
-              {!props.hideDelete && (
+              {!props.hideDelete && displayList.length > min && (
                 <Popconfirm
                   onConfirm={() => deleteItem(idx)}
                   {...delConfirmProps}
@@ -84,7 +92,9 @@ const SimpleList = ({
         );
       })}
       <div style={{ marginTop: displayList.length > 0 ? 0 : 8 }}>
-        {!props.hideAdd && <Button onClick={addItem} {...addBtnProps} />}
+        {!props.hideAdd && displayList.length < max && (
+          <AddWidget {...addBtnProps} />
+        )}
         {Array.isArray(props.buttons)
           ? props.buttons.map((item, idx) => {
               const { callback, text, html } = item;

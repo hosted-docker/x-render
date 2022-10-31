@@ -146,9 +146,36 @@ export default () => <FR schema={titleTrick} />;
 ### descType
 
 - 版本：`^1.7.0`
-- 类型：`'text' | 'icon'`
+- 类型：`'text' | 'icon' | 'widget'`
 
-当 displayType 为 `row` 时，无作用；但当 displayType 为 `column` （默认值）时，描述信息（description）的一般展示为文案形式，如果设定 descType 为 `icon`, 则会使用 tooltip 形式。
+当 displayType 为 `row` 时，无作用；但当 displayType 为 `column` （默认值）时，描述信息（description）的一般展示为文案形式，如果设定 descType 为 `icon`, 则会使用 tooltip 形式。当descType为`widget`时，会读取`descWidget` 指定使用哪个自定义组件来渲染。
+### descWidget
+- 版本 `^1.13.14`
+- 类型：`string`
+当descType 为 `widget`时，会读取descWidget指定使用哪个自定义组件来渲染。示例如下
+```js
+const schema = {
+  // ...
+  input: {
+    type: 'object',
+    properties: {
+      objectName: {
+        type: 'object',
+        collapsed: false,
+        properties: {
+          input1: {
+            title: '简单输入框',
+            type: 'string',
+            required: true,
+            descType: 'widget',
+            descWidget: 'customWidget',  // 只能使用自定义组件，从<Form widgets={{ customWidget: widget }} /> 中传入
+          },
+        },
+      },
+    },
+  },
+};
+```
 
 ### dependencies
 
@@ -332,59 +359,6 @@ const schema = {
 
 ### order
 
-- 类型：number
-- 详细：用于对 `schema` 进行排序，值越小越靠前：
-
-```js
-"input1": {
-  "title": "输入框",
-  "type": "string",
-  "order": 2
-}
-"input2": {
-  "title": "优先渲染",
-  "type": "string",
-  "order": 1
-}
-```
-
-凡是包含 props（不区分大小写）的 schema 的 key 值，都会原样传递给自定义组件。方便在自定义组件中分类 props。
-
-```js
-const schema = {
-  // ...
-  percentInput: {
-    title: '百分比输入',
-    type: 'number',
-    props: {
-      showInput: false,
-    },
-    // inputProps 会原样传给自定义组件
-    inputProps: {
-      suffix: '%',
-    },
-    // percentProps 会原样传给自定义组件
-    percentProps: {
-      step: 10,
-    },
-  },
-};
-
-// 传递给自定义组件的 props 为
-const {
-  type: 'number',
-  showInput: false,
-  inputProps: {
-    suffix: '%'
-  },
-  percentProps: {
-    step: 10
-  }
-} = props;
-```
-
-### order
-
 - 类型：`number`
 
 用于对 `item` 进行排序，值越小越靠前。
@@ -465,6 +439,65 @@ const schema = {
 };
 ```
 
+[参考 playground-动态函数](/playground)
+
+动态检验如果使用[JSON.stringify](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)序列化会丢失我们需要的函数,我们基于 [serialize-javascript](https://github.com/yahoo/serialize-javascript.git)提供
+
+```js
+import {
+  deserialize,
+  serialize,
+  serializeToDraft,
+  serializeUtil,
+} from 'fr-generator';
+
+// deserialize 反序列化，类 JSON.parse()
+// serialize 序列化，类 JSON.stringify() 内部会过滤掉undefined
+// serializeToDraft 序列化，类 JSON.stringify() 内部会过滤掉undefined，并且格式化 space: 2
+// serializeUtil, serialize-javascript 库的原样导出
+
+// 设计时把schema保存到接口的时候调用 serialize序列化、运行时schema解析的时候deserialize进行解析即可
+```
+
+其他注意事项
+
+deserialize 的解析的时候目前没有传递任何上下文，需要注意变量丢失的问题（后续如果需要考虑注入公共上下文变量等看实际情况再补充）。比如
+
+```js
+const emojiReg = /\p{Emoji_Presentation}/u;
+const schema = {
+  // ...
+  name: {
+    type: 'string',
+    required: true,
+    rules: [{
+        message: '不能输入表情，请重新输入',
+        name: '表情包',
+        validator: (_rule: any, value: any) => {
+          return !emojiRegex.test(value);
+        },
+     }],
+  },
+};
+
+// 上面这样保存后的validator，到解析执行的时候emojiRegex变量是找不到的。正确的做法应该是把正则这个变量定义在validator函数体里面
+const schema = {
+  // ...
+  name: {
+    type: 'string',
+    required: true,
+    rules: [{
+        message: '不能输入表情，请重新输入',
+        name: '表情包',
+        validator: (_rule: any, value: any) => {
+          const emojiRegex = /\p{Emoji_Presentation}/u;
+          return !emojiRegex.test(value);
+        },
+     }],
+  },
+};
+```
+
 ### required
 
 - 类型：`boolean`
@@ -490,7 +523,7 @@ const schema = {
 
 ### type
 
-- 类型：`'string' | 'number' | 'boolean' | 'array' | 'range' | 'html'`
+- 类型：`'string' | 'number' | 'boolean' | 'array' | 'range' | 'html' | 'block'`
 - 详细：type 描述里组件的值的数据类型。用于校验数据类型，也用于判断使用哪个组件来渲染，以及校验表单数据。
 
 ```js
@@ -507,6 +540,26 @@ const schema = {
     type: 'html',
     default: 'hello world',
   },
+};
+```
+
+- 特别说明: 我们在常规的 type 中新增了 block 这一类型，来增强 schema 的可扩展性,虽然不太符合 JSON Schema。其使用场景在于当 schema 的表单渲染内容中需要嵌入一块儿自定义的区块，例如使用公司的 antdForm 公共业务组件或是一些引导性的内容。当 type 为 block 时，我们不会渲染表单的 label，会留出一块空白区域让用户自由填充内容；该区域通过 widget 嵌入自定义的内容，它可以消费整个 form 示例，例如 formData，但我们不会对 value 进行校验
+
+```js
+const schema = {
+  type: 'object',
+  displayType: 'row',
+  title: 'schema中嵌入一块区域，通过widget传入用户自定义的内容',
+  properties: {
+    guide: {
+      type: 'block',
+      widget: 'siteBlock',
+    },
+  },
+};
+
+const Site = props => {
+  return '我是一个区块，用户可以自由发挥。但我不会对value进行校验';
 };
 ```
 

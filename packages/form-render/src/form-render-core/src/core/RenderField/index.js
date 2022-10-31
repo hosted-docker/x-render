@@ -1,7 +1,12 @@
 import React, { useRef } from 'react';
 import { useStore, useStore2, useTools } from '../../hooks';
 import useDebouncedCallback from '../../useDebounce';
-import { getValueByPath, isCheckBoxType, isObjType } from '../../utils';
+import {
+  getValueByPath,
+  isCheckBoxType,
+  isObjType,
+  isBlockType,
+} from '../../utils';
 import { validateField } from '../../validator';
 import ErrorMessage from './ErrorMessage';
 import ExtendedWidget from './ExtendedWidget';
@@ -36,6 +41,7 @@ const RenderField = props => {
     locale,
     watch,
   } = useStore2();
+
   const {
     onValuesChange,
     onItemChange,
@@ -44,6 +50,8 @@ const RenderField = props => {
     _setErrors,
     renderTitle,
     requiredMark,
+    setFieldValidating,
+    removeFieldValidating,
   } = useTools();
   const formDataRef = useRef();
   formDataRef.current = formData;
@@ -103,7 +111,7 @@ const RenderField = props => {
     }
     // 先不暴露给外部，这个api
     if (typeof onValuesChange === 'function') {
-      onValuesChange({ [dataPath]: value }, formDataRef.current);
+      onValuesChange({ dataPath, value, dataIndex }, formDataRef.current);
     }
 
     validateField({
@@ -113,6 +121,10 @@ const RenderField = props => {
       options: {
         locale,
         validateMessages,
+      },
+      formInstance: {
+        setFieldValidating,
+        removeFieldValidating,
       },
     }).then(res => {
       _setErrors(errors => {
@@ -171,6 +183,13 @@ const RenderField = props => {
     hasError,
   };
 
+  const displayBlock = () => {
+    if (hasError && !_schema.extra) {
+      return false;
+    }
+    return true;
+  };
+
   // if (_schema && _schema.default !== undefined) {
   //   widgetProps.value = _schema.default;
   // }
@@ -180,11 +199,11 @@ const RenderField = props => {
     return (
       <>
         {_showTitle && <div {...placeholderTitleProps} />}
-        <div className={contentClass} style={contentStyle}>
+        <div className={contentClass} style={contentStyle} datapath={dataPath}>
           <ExtendedWidget {...widgetProps} />
           <ErrorMessage {...messageProps} />
           <Extra {...widgetProps} />
-          <div className='field-block'></div>
+          {displayBlock() && <div className="field-block"></div>}
         </div>
       </>
     );
@@ -197,17 +216,23 @@ const RenderField = props => {
       <div style={{ display: 'flex' }}>
         {titleElement}
         <ErrorMessage {...messageProps} />
-        <div className='field-block'></div>
+        {displayBlock() && <div className="field-block"></div>}
       </div>
     );
     return (
-      <div className={contentClass} style={contentStyle}>
+      <div className={contentClass} style={contentStyle} datapath={dataPath}>
         <ExtendedWidget
           {...widgetProps}
           message={errorMessage}
           title={_showTitle ? titleElement : undefined}
         />
         <Extra {...widgetProps} />
+      </div>
+    );
+  } else if (isBlockType(_schema)) {
+    return (
+      <div datapath={dataPath}>
+        <ExtendedWidget {...widgetProps} />
       </div>
     );
   }
@@ -218,11 +243,12 @@ const RenderField = props => {
       <div
         className={`${contentClass} ${hideTitle ? 'fr-content-no-title' : ''}`}
         style={contentStyle}
+        datapath={dataPath}
       >
         <ExtendedWidget {...widgetProps} />
         <ErrorMessage {...messageProps} />
         <Extra {...widgetProps} />
-        <div className='field-block'></div>
+        {displayBlock() && <div className="field-block"></div>}
       </div>
     </>
   );

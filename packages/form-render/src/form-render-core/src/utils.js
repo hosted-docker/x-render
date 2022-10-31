@@ -106,6 +106,10 @@ export function isObjType(schema) {
   );
 }
 
+export function isBlockType(schema) {
+  return schema && schema.type === 'block' && schema.widget;
+}
+
 // TODO: to support case that item is not an object
 export function isListType(schema) {
   return (
@@ -1031,7 +1035,7 @@ export const removeHiddenFromResult = (data, flatten) => {
   const keys = dataToKeys(result);
 
   keys.forEach(key => {
-    const { id, dataIndex } = destructDataPath(key);
+    const { id } = destructDataPath(key);
     if (flatten[id]) {
       let { hidden } = flatten[id].schema || {};
       if (isExpression(hidden)) {
@@ -1043,6 +1047,27 @@ export const removeHiddenFromResult = (data, flatten) => {
     }
   });
   return result;
+};
+
+export const getHiddenData = (data, flatten) => {
+  let result = clone(data);
+  let hiddenData = {};
+
+  const keys = dataToKeys(result);
+
+  keys.forEach(key => {
+    const { id } = destructDataPath(key);
+    if (flatten[id]) {
+      let { hidden } = flatten[id].schema || {};
+      if (isExpression(hidden)) {
+        hidden = parseSingleExpression(hidden, result, key);
+      }
+      if (hidden) {
+        hiddenData[key] = result[key];
+      }
+    }
+  });
+  return hiddenData;
 };
 
 export function msToTime(duration) {

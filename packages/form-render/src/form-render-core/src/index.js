@@ -25,6 +25,7 @@ export { defaultMapping as mapping };
 function App({
   id,
   widgets,
+  layoutWidgets,
   mapping,
   form,
   className,
@@ -52,7 +53,7 @@ function App({
   allCollapsed = false,
   onValuesChange,
   column,
-  removeHiddenData = false,
+  removeHiddenData = true,
   globalProps = {},
   methods = {},
   renderTitle,
@@ -219,6 +220,7 @@ function App({
   const tools = useMemo(
     () => ({
       widgets,
+      layoutWidgets,
       mapping: { ...defaultMapping, ...mapping },
       onValuesChange,
       renderTitle,
@@ -238,10 +240,19 @@ function App({
       // resetFields,
       // setErrorFields,
       // removeErrorField,
+      // validateFields,
+      // isFieldTouched,
+      // isFieldsTouched,
+      // setFieldValidating,
+      // removeFieldValidating,
+      // isFieldValidating,
+      // scrollToPath,
+      // getFieldError,
+      // getFieldsError,
+      // setFields,
     }),
     [widgets]
   );
-
   useEffect(() => {
     // 需要外部校验的情况，此时 submitting 还是 false
     if (outsideValidating === true) {

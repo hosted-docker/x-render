@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.13.19
+
+- [+] 删除 `formData` 中的 `index`
+
+## 1.13.17
+
+- [+] `simpleList` 和 `cardList` 支持自定义新增按钮
+- [!] `removeHiddenData` 默认设置为 `true`
+- [!] 修改 `onValuesChange` 入参形式
+- [+] 列表组件支持自定义增加与删除
+
+## 1.13.15
+
+- [+] 新增获取隐藏表单值的方法：`form.getHiddenValues()`
+- [+] 补充`display: 'block'`类型声明
+
+## 1.13.12
+
+- [+] `description`支持 html 字符
+
+## 1.13.10
+
+- [!] 修复`list`类组件的占位符显示异常的问题
+
+## 1.13.9
+
+- [+] 调整表单占位符样式
+
 ## 1.13.8
 
 - [+] `cardList` schema 支持透传 `delConfirmProps`
@@ -366,7 +394,7 @@
 ### 1.3.1
 
 - [+] 列表支持 props/buttons 属性，用于添加更多的自定义操作按钮 ([#343](https://github.com/alibaba/x-render/issues/343))
-- [+] 添加了 `onValuesChange` 方法，用于时时更新的钩子，暂时不放文档，内部试验一下性能
+- [+] 添加了 `onValuesChange` 方法，用于实时更新的钩子，暂时不放文档，内部试验一下性能
 - [+] 添加了 `className` 这个基础属性，用于样式覆盖特定的表单元素
 - [!] 解决包体积大小问题 lodash -> lodash-es ([#341](https://github.com/alibaba/x-render/issues/341))
 - [!] 修复颜色选择器无法选中透明度的问题 ([#349](https://github.com/alibaba/x-render/issues/349))

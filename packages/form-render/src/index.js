@@ -10,8 +10,8 @@ export {
   mapping,
   useForm,
 } from './form-render-core/src';
-export { defaultWidgets as widgets };
 
+export { defaultWidgets as widgets };
 const FR = ({ widgets, configProvider, ...rest }) => {
   return (
     <ConfigProvider locale={zhCN} {...configProvider}>

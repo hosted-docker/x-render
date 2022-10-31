@@ -11,7 +11,8 @@ export type SchemaType =
   | 'void'
   | 'date'
   | 'datetime'
-  | (string & {});
+  | 'block'
+  | string;
 
 export interface SchemaBase {
   type: SchemaType;
@@ -27,7 +28,8 @@ export interface SchemaBase {
     | 'dateTime'
     | 'date'
     | 'time'
-    | 'upload';
+    | 'upload'
+    | (string & {});
   default: any;
   /** 是否必填，支持 `'{{ formData.xxx === "" }}'` 形式的表达式 */
   required: boolean | string;
@@ -60,6 +62,8 @@ export interface SchemaBase {
   enumNames: Array<string | number> | string;
   rules: RuleItem | RuleItem[];
   props: Record<string, any>;
+  /**扩展字段 */
+  'add-widget'?: string;
 }
 
 export type Schema = Partial<SchemaBase>;
@@ -96,6 +100,13 @@ export interface ResetParams {
   allTouched?: boolean;
   [k: string]: any;
 }
+export interface FieldParams {
+  name: string;
+  error?: string[];
+  touched?: boolean;
+  validating?: boolean;
+  value?: any;
+}
 
 export interface FormInstance {
   formData: any;
@@ -109,7 +120,10 @@ export interface FormInstance {
   setSchemaByPath: (path: string, value: any) => void;
   setSchema: (settings: any) => void;
   setValues: (formData: any) => void;
-  getValues: () => any;
+  getValues: (
+    nameList?: string[],
+    filterFunc?: (meta: { touched: boolean; validating: boolean }) => boolean
+  ) => any;
   resetFields: (options?: ResetParams) => void;
   submit: () => Promise<{ data: any; errors: Error[] }>;
   submitData: any;
@@ -126,6 +140,18 @@ export interface FormInstance {
   isEditing: boolean;
   setEditing: (status: boolean) => void;
   syncStuff: (args: any) => void;
+  validateFields: (
+    nameList?: string[]
+  ) => Promise<{ data: any; errors: Error[] }>;
+  isFieldTouched: (namePath: string) => boolean;
+  isFieldsTouched: (nameList?: string[], allTouched?: boolean) => boolean;
+  setFieldValidating: (namePath: string) => boolean;
+  removeFieldValidating: (namePath: string) => void;
+  isFieldValidating: (namePath: string) => boolean;
+  scrollToPath: (namePath: string) => boolean;
+  getFieldError: (namePath: string) => String[];
+  getFieldsError: (nameList?: string[]) => Error[];
+  setFields: (fields: FieldParams[]) => void;
   /** 折中升级方案中使用到，正常用不到 */
   init: () => void;
   /** 数据分析接口，表单展示完成渲染时触发 */
@@ -199,9 +225,20 @@ export interface FRProps {
   /** 表单提交后钩子 */
   onFinish?: (formData: any, error: Error[]) => void;
   /** 时时与外部更新同步的钩子 */
-  onValuesChange?: (changedValues: any, formData: any) => void;
+  onValuesChange?: (
+    changedValues: {
+      dataPath: string;
+      value: any;
+      dataIndex: number[] | unknown;
+    },
+    formData: any
+  ) => void;
   /** 隐藏的数据是否去掉，默认不去掉（false） */
   removeHiddenData?: boolean;
+  /** 配置自定义layout组件 */
+  layoutWidgets?: any;
+  /** 扩展方法 */
+  methods?: Record<string, Function>;
 }
 
 declare const FR: React.FC<FRProps>;
