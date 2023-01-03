@@ -1,4 +1,4 @@
-import React, { Suspense } from 'react';
+import React, { memo, Suspense } from 'react';
 import { transformProps } from '../../createWidget';
 import { useStore, useTools } from '../../hooks';
 import { extraSchemaList, getWidgetName } from '../../mapping';
@@ -191,6 +191,9 @@ const ExtendedWidget = ({
 //   }
 //   if (isObjType(prev.schema) && isObjType(current.schema)) {
 //     return false;
+//   }
+//   if (JSON.stringify(prev.hasError) === JSON.stringify(current.hasError)) {
+//     return true;
 //   }
 //   if (
 //     JSON.stringify(prev.value) === JSON.stringify(current.value) &&

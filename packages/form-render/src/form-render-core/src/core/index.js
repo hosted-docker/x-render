@@ -207,8 +207,7 @@ const CoreRender = ({
   if (schema.hidden) {
     columnStyle.display = 'none';
   }
-  // if (!isComplex) {
-  // }
+
   if (!isObj) {
     if (width) {
       columnStyle.width = width;
@@ -217,6 +216,14 @@ const CoreRender = ({
       columnStyle.width = `calc(100% /${column})`;
       columnStyle.paddingRight = 8;
     }
+  }
+
+  // 如果传入自定义样式则覆盖使用，object 外层样式使用 schema.style，内层样式使用 schema.props.style
+  if ('object' === typeof schema?.style) {
+    columnStyle = {
+      ...columnStyle,
+      ...schema.style,
+    };
   }
 
   const _labelWidth = isLooselyNumber(effectiveLabelWidth)

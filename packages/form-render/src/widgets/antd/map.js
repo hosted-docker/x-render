@@ -10,6 +10,7 @@ export default function Map({ children, title, schema }) {
   const { theme: globalTheme, displayType: globalDisplayType } = useStore2();
 
   const theme = schema.theme || globalTheme;
+  const props = schema?.props || {};
   const displayType = schema.displayType || globalDisplayType;
 
   useEffect(() => {
@@ -39,6 +40,7 @@ export default function Map({ children, title, schema }) {
           </span>
         </div>
         <div style={{ marginLeft: displayType == 'row' ? 0 : 12 }}>
+          {/* <div className={`flex flex-wrap fr-core-obj`}>{children}</div> */}
           {children}
         </div>
       </div>
@@ -61,7 +63,17 @@ export default function Map({ children, title, schema }) {
         className="fr-theme-card-wrap"
       >
         {children}
+        {/* <div className={`flex flex-wrap fr-core-obj`}>{children}</div> */}
       </Card>
+    );
+  }
+
+  // 支持自定义弹性布局
+  if (theme === 'flex') {
+    return (
+      <div className="flex w-100" {...props}>
+        {children}
+      </div>
     );
   }
 
@@ -99,6 +111,9 @@ export default function Map({ children, title, schema }) {
               'fr-collapse-object-child-column': displayType === 'column',
             })}
           >
+            {/* <div className={`flex flex-wrap fr-core-obj`}>
+              {children}
+            </div> */}
             {children}
           </div>
         </Panel>

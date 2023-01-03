@@ -1,6 +1,6 @@
 {
   "name": "form-render",
-  "version": "1.13.19",
+  "version": "1.14.8-beta.3",
   "description": "通过 JSON Schema 生成标准 Form，常用于自定义搭建配置界面生成",
   "keywords": [
     "Form",
@@ -48,8 +48,7 @@
     "prepare": "npm run build",
     "prettier": "prettier --write \"**/*.{js,jsx,tsx,ts,less,md,json}\"",
     "postpublish": "git push --tags",
-    "test": "umi-test",
-    "test:coverage": "umi-test --coverage"
+    "test:ui": "vitest --ui"
   },
   "lint-staged": {
     "*.{js,jsx,less,md,json}": [
@@ -67,7 +66,7 @@
     "lodash-es": "^4.17.21",
     "moment": "^2.24.0",
     "rc-color-picker": "^1.2.6",
-    "smooth-scroll": "^16.1.3",
+    "scroll-into-view-if-needed": "^2.2.29",
     "virtualizedtableforantd4": "^1.1.2"
   },
   "devDependencies": {

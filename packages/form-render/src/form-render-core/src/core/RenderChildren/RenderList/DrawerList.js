@@ -82,16 +82,17 @@ const DrawerList = ({
     const item = flatten[child];
     const schema = (item && item.schema) || {};
     const _dataIndex = getKeyFromPath(child);
+    console.log(schema);
     return {
       dataIndex: _dataIndex,
-      title: schema.required ? (
-        <>
-          <span className="fr-label-required"> *</span>
-          <span>{schema.title}</span>
-        </>
-      ) : (
-        schema.title
-      ),
+      title: schema.required
+        ? () => (
+            <>
+              <span className="fr-label-required"> *</span>
+              <span>{schema.title}</span>
+            </>
+          )
+        : schema.title,
       width: FIELD_LENGTH,
       render: (value, record) => {
         const childPath = getDataPath(child, [record.$idx]);
@@ -214,11 +215,11 @@ const DrawerList = ({
           : null}
       </div>
       <Drawer
-        width="600"
+        width={600}
         title={actionColumnProps.colHeaderText}
         placement="right"
         onClose={closeDrawer}
-        visible={showDrawer}
+        open={showDrawer}
         destroyOnClose // 必须要加，currentIndex不是一个state，Core不会重新渲染就跪了
       >
         <div className="fr-container">
