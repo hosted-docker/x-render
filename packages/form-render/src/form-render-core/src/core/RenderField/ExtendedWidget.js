@@ -49,6 +49,7 @@ const ExtendedWidget = ({
     getFieldError,
     getFieldsError,
     setFields,
+    methods,
   } = useTools();
 
   const { globalProps } = useStore();
@@ -75,6 +76,10 @@ const ExtendedWidget = ({
     widgetName = readOnlyName;
   }
   if (!widgetName) {
+    const CustomErrorSchema = widgets['errorSchemaWidget'];
+    if (CustomErrorSchema) {
+      return <CustomErrorSchema schema={schema} />;
+    }
     widgetName = 'input';
     return <ErrorSchema schema={schema} />;
   }
@@ -157,14 +162,17 @@ const ExtendedWidget = ({
     setFields,
     hideSelf,
     watch,
+    methods,
   };
 
   const finalProps = transformProps(widgetProps);
   return (
     <Suspense fallback={<div></div>}>
-      <div className="fr-item-wrapper">
-        <Widget {...finalProps} />
-      </div>
+      {'flex' === schema?.theme ? // 如果有自定义样式则不再嵌套 fr-item-wrapper 样式
+        <Widget {...finalProps} /> :
+        <div className="fr-item-wrapper">
+          <Widget {...finalProps} />
+        </div>}
     </Suspense>
   );
 };
