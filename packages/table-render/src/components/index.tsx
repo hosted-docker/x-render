@@ -1,4 +1,4 @@
-import { ConfigProvider } from 'antd';
+import { ConfigProvider, Tag } from 'antd';
 import zh_CN from 'antd/lib/locale/zh_CN';
 import { useForm } from 'form-render';
 import _get from 'lodash.get';
@@ -28,8 +28,10 @@ const useTableRoot = props => {
 
   const api = useRef<SearchApi<typeof state.api[number]>>();
   const afterSearch = useRef<any>();
+  const paginationRef = useRef<any>(state.pagination);
+  const tabRef = useRef<any>(state.tab);
 
-  const { pagination, tab: currentTab } = state;
+  const { tab: currentTab } = state;
 
   const doSearch = (
     params: {
@@ -100,14 +102,13 @@ const useTableRoot = props => {
     moreSearch?: any
   ) => {
     const _stay = (params && params.stay) || false;
-    const _tab = params && params.tab;
     const _search = moreSearch || {};
     doSearch(
       {
+        current: _stay ? paginationRef?.current?.current : 1,
+        tab: tabRef.current,
+        pageSize: paginationRef?.current?.pageSize,
         ...params,
-        current: _stay ? pagination.current : 1,
-        tab: _tab,
-        pageSize: pagination.pageSize,
       },
       _search
     );
@@ -115,6 +116,7 @@ const useTableRoot = props => {
 
   const changeTab = (tab: string | number) => {
     if (['string', 'number'].indexOf(typeof tab) > -1) {
+      tabRef.current = tab;
       set({ tab });
       refresh({ tab });
     } else {
@@ -132,7 +134,14 @@ const useTableRoot = props => {
 
   const context = {
     tableState: { ...state, search: form.getValues() },
-    setTable: set,
+    
+    setTable: (newState: any) => {
+      newState.pagination && (paginationRef.current = newState.pagination);
+      if (newState.tab || newState.tab === 0) {
+        tabRef.current = newState.tab;
+      }
+      set(newState);
+    },
     doSearch,
     refresh,
     changeTab,
