@@ -1,62 +1,51 @@
 import dayjs from 'dayjs';
+import { set, get, cloneDeep, has, merge, isUndefined, omitBy } from 'lodash-es';
 
-function stringContains(str, text) {
-  return str.indexOf(text) > -1;
-}
+export const _set = set;
+export const _get = get;
+export const _cloneDeep = cloneDeep;
+export const _has = has;
+export const _merge = merge;
+export const _isUndefined = isUndefined;
+export const _omitBy = omitBy;
 
-export const isObj = a =>
-  stringContains(Object.prototype.toString.call(a), 'Object');
-
-const isApiString = str => {
-  if (typeof str !== 'string') return false;
-  if (str.indexOf('$api.') === 0 || str.indexOf('$func.') === 0) return true;
-  return false;
-};
-
-const getApiName = str => {
-  if (str.indexOf('$api.') === 0) return str.substring(5);
-  if (str.indexOf('$func.') === 0) return str.substring(6);
-  return '';
-};
-
-export const buildSchema = (schema, api) => {
-  if (typeof schema !== 'object' || schema === null) {
-    if (isApiString(schema)) {
-      const apiName = getApiName(schema);
-      if (api && api[apiName] && typeof api[apiName] === 'function') {
-        return api[apiName];
-      } else {
-        return () => {
-          console.error('没有找到匹配的函数');
-        };
-      }
-    }
-    return schema;
-  }
-  if (Array.isArray(schema)) {
-    const result = [...schema];
-    return result.map(item => buildSchema(item, api));
-  }
-  // 剩下是 result 是对象的情况
-  const result = { ...schema };
-  const keys = Object.keys(result);
-  keys.forEach(key => {
-    result[key] = buildSchema(result[key], api);
-  });
-  return result;
-};
-
-export const getDateTime = time => {
+export const getDateTime = (time: any, format: string) => {
   if (!time) return null;
-  return dayjs(time).format('YYYY-MM-DD HH:mm:ss');
+  return dayjs(time).format(format || 'YYYY-MM-DD HH:mm:ss');
 };
-export const getDate = time => {
+
+export const getDate = (time: any, format: string) => {
   if (!time) return null;
-  return dayjs(time).format('YYYY-MM-DD');
+  return dayjs(time).format(format || 'YYYY-MM-DD');
+};
+
+export const getDateRange = (value: any, { result, record } , _format?: string) => {
+  let data = value;
+  const { bind, format } = result.valueTypeProps || {}
+  if (bind) {
+    data = [record?.[bind[0]], record?.[bind[1]]];
+  }
+
+
+  if (!isArray(data)) return null;
+  const start = getDate(data[0], _format || format);
+  const end = getDate(data[1], _format || format);
+
+  if (start && end) {
+    return `${start} ~ ${end}`;
+  }
+
+  if (start) {
+    return `${start}（开始时间）`;
+  }
+
+  if (end) {
+    return `${end}（结束时间）`;
+  }
 };
 
 // 格式化千分符
-export const getMoneyType = num => {
+export const getMoneyType = (num: any) => {
   if (!num) return null;
   return `¥${num}`.replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 };
@@ -71,3 +60,23 @@ export const parseFunctionValue = (value, params, cb) => {
   }
   return _value;
 };
+
+export const isObject = (data: any) => {
+  const str = Object.prototype.toString.call(data);
+  return str.indexOf('Object') > -1;
+}
+
+export const isArray = (data: any) => {
+  const str = Object.prototype.toString.call(data);
+  return str.indexOf('Array') > -1;
+}
+
+export const isFunction = (data: any) => typeof data === 'function';
+
+export const translation = (configCtx: any) => (key: string) => {
+  const locale = configCtx?.locale.TableRender;
+  return locale[key];
+}
+
+
+
