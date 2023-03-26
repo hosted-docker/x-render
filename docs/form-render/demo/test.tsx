@@ -198,3 +198,198 @@
 //     </>
 //   );
 // }
+
+
+import React from 'react';
+import FormRender, { useForm } from 'form-render';
+
+const schema = {
+  type: 'object',
+  displayType: 'row',
+  properties: {
+    obj: {
+      type: 'object',
+      widget: 'card',
+      title: '卡片主题',
+      description: '这是一个对象类型',
+      column: 3,
+      properties: {
+        input1: {
+          title: '输入框 A',
+          type: 'string',
+        },
+        input2: {
+          title: '输入框 B',
+          type: 'string',
+        },
+        obj: {
+          type: 'object',
+          widget: 'card',
+          title: '卡片主题',
+          description: '这是一个对象类型',
+          column: 3,
+          properties: {
+            input1: {
+              title: '输入框 A',
+              type: 'string',
+            },
+            input2: {
+              title: '输入框 B',
+              type: 'string',
+            }
+          }
+        }
+      },
+    },
+    list: {
+      // title: '对象数组',
+      // description: '对象数组嵌套功能',
+      type: 'array',
+      widget: 'cardList',
+      items: {
+        type: 'object',
+        title: '卡片主题',
+        description: '这是一个对象类型',
+        column: 3,
+        properties: {
+          input1: {
+            title: '输入框 A',
+            type: 'string',
+          },
+          input3: {
+            title: '输入框 B',
+            type: 'string',
+          },
+          obj: {
+            type: 'object',
+            widget: 'card',
+            title: '卡片主题',
+            description: '这是一个对象类型',
+            column: 3,
+            properties: {
+              input1: {
+                title: '输入框 A',
+                type: 'string',
+              },
+              input2: {
+                title: '输入框 B',
+                type: 'string',
+              },
+              list: {
+                // title: '对象数组',
+                // description: '对象数组嵌套功能',
+                type: 'array',
+                widget: 'cardList',
+                items: {
+                  type: 'object',
+                  title: '卡片主题',
+                  description: '这是一个对象类型',
+                  column: 3,
+                  properties: {
+                    input1: {
+                      title: '输入框 A',
+                      type: 'string',
+                    },
+                    input3: {
+                      title: '输入框 B',
+                      type: 'string',
+                    },
+                  },
+                },
+              },
+            }
+          }
+        },
+      },
+    },
+  },
+};
+
+export default () => {
+  const form = useForm();
+  const watch = {
+    '#': (value, a) => {
+      debugger;
+    },
+    "list": (a, b) => {
+     debugger;
+    },
+    "obj.obj.input1": (a, b) => {
+      debugger;
+    },
+    "list[].input1": (a, b) => {
+      debugger
+    },
+    "list[].obj.input1": (a, b) => {
+      debugger
+    },
+    "list[].obj.list": (a, b) => {
+      debugger;
+    },
+    "list[].obj.list[]": (a, b) => {
+      debugger;
+    },
+    "list[].obj.list[].input1": (a, b) => {
+      debugger;
+    }
+  }
+
+  return <FormRender schema={schema} form={form} watch={watch}/>;
+};
+
+
+
+// import React from 'react';
+// import FormRender, { useForm } from 'form-render';
+
+// const schema = {
+//   type: 'object',
+//   displayType: 'row',
+//   properties: {
+//     obj: {
+//       type: 'object',
+//       widget: 'card',
+//       title: '卡片主题',
+//       description: '这是一个对象类型',
+//       column: 3,
+//       properties: {
+//         yyy: {
+//           title: '输入框 A',
+//           type: 'void',
+//           widget: 'test'
+//         },
+//         input1: {
+//           title: '输入框 A',
+//           type: 'string',
+//         },
+//         input2: {
+//           title: '输入框 B',
+//           type: 'string',
+//         },
+//         xxx: {
+//           title: '输入框 A',
+//           type: 'void',
+//           widget: 'test'
+//         },
+//         input3: {
+//           title: '输入框 C',
+//           type: 'string',
+//         },
+//         input4: {
+//           title: '输入框 D',
+//           type: 'string',
+//         },
+//       },
+//     },
+//   },
+// };
+
+// const Test = () => {
+//   return 1
+// }
+
+// export default () => {
+//   const form = useForm();
+
+//   return <FormRender schema={schema} form={form} widgets={{ test: Test }} builtOperation/>;
+// };

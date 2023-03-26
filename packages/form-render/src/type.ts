@@ -51,6 +51,7 @@ export interface SchemaBase {
   displayType?: 'row' | 'column' | string;
   width?: string | number;
   labelWidth?: number | string;
+  maxWidth?: number | string;
   column?: number;
   className?: string;
   widget?: string;
@@ -112,6 +113,15 @@ export interface FieldParams {
   touched?: boolean;
   validating?: boolean;
   value?: any;
+}
+
+export interface ListOperate {
+  btnType: 'text' | 'icon';
+  hideMove: boolean;
+}
+
+export interface GlobalConfig {
+  listOperate: ListOperate
 }
 
 export interface FormInstance extends AntdFormInstance {
@@ -268,6 +278,10 @@ export interface FRProps extends AntdFormProps {
    * 对象组件是否折叠（全局的控制）
    */
   allCollapsed?: boolean;
+   /** 
+   * 表单全局配置
+   */
+   globalConfig?: GlobalConfig;
   /** 
    * 表单的全局共享属性
    */

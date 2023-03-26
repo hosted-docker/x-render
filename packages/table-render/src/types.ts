@@ -29,7 +29,7 @@ export type ProColumnsType<T extends object = any> = Array<
     /** 是否支持复制 */
     copyable?: boolean;
     /** 值的类型 */
-    valueType?: 'text' | 'money' | 'date' | 'dateTime' | 'code';
+    valueType?: 'text' | 'money' | 'date' | 'dateTime' | 'code' | 'tag' | 'tags' | 'progress' | 'dateRange' | 'dateTimeRange' | 'image';
     /** 当前列值的枚举 */
     enum?: Record<string, string>;
   }
@@ -52,7 +52,7 @@ export interface TableState<RecordType> {
 }
 
 // TODO这里FR的props应该去FR里写，这里继承就好了
-export interface SearchProps<RecordType> extends Omit<FRProps, 'form'> {
+export interface SearchProps<RecordType> extends Omit<FRProps, 'form' | 'schema'> {
   debug?: boolean;
   searchBtnStyle?: React.CSSProperties;
   searchBtnClassName?: string;
@@ -73,7 +73,7 @@ export interface SearchProps<RecordType> extends Omit<FRProps, 'form'> {
   afterSearch?: (params: any) => any;
   widgets?: any;
   form?: any;
-  [key:string]: any
+  [key: string]: any
 }
 
 type ApiType<RecordType> =
@@ -92,8 +92,7 @@ export type SearchApi<RecordType> = (
   /**
    * @deprecated 即将弃用，请使用 data 返回
    */
-  rows: Array<RecordType>;
-  
+  rows?: Array<RecordType>;
   data: Array<RecordType>;
   total: number;
   pageSize?: number;
@@ -108,7 +107,7 @@ export interface TablePropsC<RecordType extends Object = any>
 }
 
 export interface TableRenderProps<RecordType extends Object = any>
-  extends Omit<TablePropsC<RecordType>, 'locale'>{
+  extends Omit<TablePropsC<RecordType>, 'locale'> {
   /** 
    * 开启 debug 模式，时时显示内部状态 
   */
@@ -126,5 +125,11 @@ export interface TableRenderProps<RecordType extends Object = any>
    * antd的全局config
    */
   configProvider?: ConfigProviderProps;
+  /**
+   * 自定义渲染表格
+   */
+  tableWrapper?: (tableNode: React.ReactNode) => React.ReactNode;
   request?: ApiType<RecordType>;
+  // 自动请求
+  autoRequest?: boolean;
 }

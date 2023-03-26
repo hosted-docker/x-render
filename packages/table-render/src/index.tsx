@@ -9,17 +9,21 @@ import locales from './locales';
 import { createStore, TRContext } from './core/store';
 import RenderCore from './core';
 import { TableRenderProps } from './types';
+export type {
+  TableRenderProps,
+  ProColumnsType,
+  SearchProps,
+} from './types';
 
-export default React.forwardRef((props: TableRenderProps, ref) => {
+const TableRender = React.forwardRef((props: TableRenderProps, ref) => {
   const {
     configProvider,
     locale = 'zh-CN',
     ...otherProps
   } = props;
-  
+
   const storeRef = useRef(createStore());
   const store: any = storeRef.current;
-
 
   useEffect(() => {
     if (locale === 'en-US') {
@@ -33,8 +37,8 @@ export default React.forwardRef((props: TableRenderProps, ref) => {
   if (otherProps.search && locale) {
     otherProps.search.locale = locale;
   }
-  
-  const langPack: any = { 
+
+  const langPack: any = {
     ...antdLocale,
     "TableRender": locales[locale],
     ...configProvider?.locale
@@ -51,3 +55,5 @@ export default React.forwardRef((props: TableRenderProps, ref) => {
     </ConfigProvider>
   );
 });
+
+export default TableRender;

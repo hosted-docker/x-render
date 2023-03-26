@@ -1,7 +1,7 @@
 ---
 title: 首页
 hero:
-  title: XRender
+  title: XRender 2.0
   description: |
     中后台「表单/表格/图表」开箱即用解决方案
     <br />
@@ -22,8 +22,7 @@ features:
     description: 中后台表单可视化搭建生成利器
 footer: Please feel free to use and contribute to the development.
 ---
-
-
+<TypeSchema></TypeSchema>
 <embed src="../README.md#L33-L163"></embed>
 
 ## 贡献者们
@@ -33,4 +32,5 @@ footer: Please feel free to use and contribute to the development.
 </a>
 
 ## 互助答疑群
+
 <img style="height: 400px" src="https://img.alicdn.com/imgextra/i3/O1CN01HksNgs1DZNuQsORIp_!!6000000000230-0-tps-1242-1602.jpg">

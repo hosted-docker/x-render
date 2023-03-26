@@ -41,6 +41,7 @@ const FormCore = (props: any) => {
     labelWidth,
     labelCol,
     fieldCol,
+    maxWidth,
     form,
     onFinish,
     onFinishFailed,
@@ -70,9 +71,10 @@ const FormCore = (props: any) => {
       displayType,
       labelCol,
       fieldCol,
+      maxWidth
     };
     setContext(context);
-  }, [column, labelCol, fieldCol, displayType, labelWidth]);
+  }, [column, labelCol, fieldCol, displayType, labelWidth, maxWidth, readOnly]);
 
   const initial = async () => {
     onMount && await onMount();
@@ -139,7 +141,7 @@ const FormCore = (props: any) => {
     setSessionItem('FORM_START', end);
     setSessionItem('NUMBER_OF_SUBMITS', numberOfSubmits);
     setSessionItem('FAILED_ATTEMPTS', failedAttempts);
-  }
+  };
 
   const handleValuesChange = (changedValues: any, _allValues: any) => {
     const allValues = valueRemoveUndefined(_allValues);
@@ -160,7 +162,7 @@ const FormCore = (props: any) => {
       : null;
     fieldsError = transformFieldsError(fieldsError);
 
-    // console.log(values);
+    // console.log(values, form.getValues(true));
     // Stop submit
     if (fieldsError) {
       form.setFields(fieldsError);
@@ -189,6 +191,7 @@ const FormCore = (props: any) => {
 
   return (
     <Form
+      className='fr-form'
       labelWrap={true}
       {...formProps}
       form={form}
@@ -200,7 +203,7 @@ const FormCore = (props: any) => {
         <RenderCore schema={schema} />
         {operateExtra}
       </Row>
-      {builtOperation && (
+      {schema && builtOperation && (
         <Row gutter={displayType === 'row' ? 16 : 24}>
           <Col span={24 / column}>
             <Form.Item

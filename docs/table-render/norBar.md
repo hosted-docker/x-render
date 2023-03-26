@@ -6,5 +6,32 @@ group:
   order: 2
 ---
 # 无工具栏
-<code src='./demo/noBar.tsx'></code>
 
+```jsx
+/**
+ * transform: true
+ * defaultShowCode: true
+ * background: 'rgb(245,245,245)'
+ */
+import React, { useRef } from 'react';
+import TableRender from 'table-render';
+
+import { schema } from './static/search';
+import { columns, toolbarRender } from './static/table';
+import { searchApi, searchApi2 } from './static/request';
+
+const Demo = () => {
+  const tableRef = useRef();
+
+  return (
+    <TableRender
+      ref={tableRef}
+      search={{ schema }}
+      columns={columns}
+      request={searchApi}
+    />
+  )
+};
+
+export default Demo;
+```
