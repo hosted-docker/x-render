@@ -3,13 +3,13 @@
 // DO NOT CHANGE IT MANUALLY!
 import React, { useState, useEffect, useRef } from 'react';
 import { useOutlet, history } from 'dumi';
-import { SiteContext } from '/workspace/x-render/node_modules/dumi/dist/client/theme-api/context.js';
+import { SiteContext } from '/Users/zhanbo/happy/x-render/node_modules/dumi/dist/client/theme-api/context.js';
 import { demos, components } from '../meta';
 import { locales } from '../locales/config';
 
 const entryExports = {
-  
-  
+
+
 };
 
 export default function DumiContextWrapper() {
@@ -34,6 +34,7 @@ export default function DumiContextWrapper() {
   return (
     <SiteContext.Provider value={{
       pkg: {"name":"root","version":"0.0.1","repository":{"type":"git","url":"git+https://github.com/alibaba/x-render.git","branch":"master","platform":"github"}},
+      historyType: "browser",
       entryExports,
       demos,
       components,

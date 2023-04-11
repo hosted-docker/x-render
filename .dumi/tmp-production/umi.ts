@@ -3,15 +3,15 @@
 // DO NOT CHANGE IT MANUALLY!
 import './core/polyfill';
 
-import { renderClient } from '/workspace/x-render/node_modules/@umijs/preset-umi/node_modules/@umijs/renderer-react';
+import { renderClient } from '/Users/zhanbo/happy/x-render/node_modules/@umijs/preset-umi/node_modules/@umijs/renderer-react';
 import { getRoutes } from './core/route';
 import { createPluginManager } from './core/plugin';
 import { createHistory } from './core/history';
-import Loading from '/workspace/x-render/.dumi/loading.tsx';
+import Loading from '/Users/zhanbo/happy/x-render/.dumi/loading.tsx';
 import { ApplyPluginsType } from 'umi';
 
 
-const publicPath = "/mirror/x-render/";
+const publicPath = "/";
 const runtimePublicPath = false;
 
 async function render() {
@@ -34,7 +34,7 @@ async function render() {
     initialValue: {},
   });
 
-  const basename = contextOpts.basename || '/mirror/x-render';
+  const basename = contextOpts.basename || '/';
   const historyType = contextOpts.historyType || 'browser';
 
   const history = createHistory({
@@ -98,9 +98,9 @@ if (
 })();
 
     if(location.origin.includes('gitee')) location.href = 'https://xrender.fun'
-    
+
 render();
 
 window.g_umi = {
-  version: '4.0.56',
+  version: '4.0.64',
 };
