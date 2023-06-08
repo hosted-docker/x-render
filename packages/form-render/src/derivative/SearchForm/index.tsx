@@ -35,7 +35,7 @@ const getSearchHeight = (limitHeight: boolean, isColumn: boolean) => {
   if (!limitHeight) {
     return 'auto';
   }
- 
+
   if (isColumn) {
     return 110;
   }
@@ -108,7 +108,7 @@ const SearchForm: <RecordType extends object = any>(
 
     const resizeObserver = new ResizeObserver(() => {
       const { clientWidth, clientHeight } = searchRef?.current || {};
-      if(clientWidth === 0 || clientHeight === 0)){
+      if(clientWidth === 0 || clientHeight === 0){
         return;
       }
       if (clientHeight < (isColumn ? 110 : 136)) {
@@ -173,7 +173,7 @@ const SearchForm: <RecordType extends object = any>(
   };
 
   const operateShow = mode !== 'simple' || (mode === 'simple' && retainBtn);
-  
+
   return (
     <div
       className={classnames('fr-search', { [className || '']: !!className,  'fr-column-search': isColumn })}
@@ -195,12 +195,12 @@ const SearchForm: <RecordType extends object = any>(
         onFinishFailed={handleFinishFailed}
         form={form}
         operateExtra={operateShow && (
-          <Col 
-            className={classnames('search-action-col', { 
+          <Col
+            className={classnames('search-action-col', {
                 'search-action-fixed': limitHeight,
                 'search-action-column': isColumn,
                 'search-action-column-fixed': limitHeight && isColumn,
-            })} 
+            })}
             style={{ minWidth: (1/column)*100 + '%' }}
           >
             <ActionView {...actionProps} setLimitHeight={setLimitHeight} retainBtn={retainBtn} mode={mode} />
