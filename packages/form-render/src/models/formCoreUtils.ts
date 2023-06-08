@@ -1,5 +1,5 @@
 
-import { isObject, isArray, _get, _has, isFunction } from '../utils';
+import { isObject, isArray, _get, _has, isFunction, isObjType } from '../utils';
 
 const executeCallBack = (watchItem: any, value: any, path: string, index?: any) => {
   if (isFunction(watchItem)) {
@@ -85,7 +85,7 @@ export const valuesWatch = (changedValues: any, allValues: any, watch: any) => {
   }
 
   const flatValues = {
-    '#': { value: allValues, index: allValues }
+    '#': { value: allValues, index: changedValues }
   };
 
   traverseValues({ changedValues, allValues, flatValues });
@@ -100,7 +100,7 @@ export const valuesWatch = (changedValues: any, allValues: any, watch: any) => {
   });
 };
 
-export const transformFieldsError = (_fieldsError: any) => {
+export const transformFieldsData = (_fieldsError: any, getFieldName: any) => {
   let fieldsError = _fieldsError;
   if (isObject(fieldsError)) {
     fieldsError = [fieldsError];
@@ -110,7 +110,7 @@ export const transformFieldsError = (_fieldsError: any) => {
     return;
   }
 
-  return fieldsError.map((field: any) => ({ errors: field.error, ...field }));
+  return fieldsError.map((field: any) => ({ errors: field.error, ...field, name: getFieldName(field.name) }));
 };
 
 export const immediateWatch = (watch: any, values: any) => {
@@ -118,18 +118,15 @@ export const immediateWatch = (watch: any, values: any) => {
     return;
   }
 
-  Object.keys(watch).forEach(path => {
-    const value = _get(values, path);
-    const watchItem = watch[path];
-
+  const watchObj = {};
+  Object.keys(watch).forEach(key => {
+    const watchItem = watch[key];
     if (watchItem?.immediate && isFunction(watchItem?.handler)) {
-      try {
-        watchItem.handler(value);
-      } catch (error) {
-        console.log(`${path}对应的watch函数执行报错：`, error);
-      }
+      watchObj[key] = watchItem;
     }
   });
+
+  valuesWatch(values, values, watchObj);
 };
 
 export const getSchemaFullPath = (path: string, schema: any) => {
@@ -149,7 +146,7 @@ export const getSchemaFullPath = (path: string, schema: any) => {
     const key = result + '.' + item;
     const itemSchema = _get(schema, key, {});
 
-    if (itemSchema?.type === 'object') {
+    if (isObjType(itemSchema)) {
       result = key + '.properties';
       return ;
     }

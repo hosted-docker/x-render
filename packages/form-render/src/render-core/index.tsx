@@ -38,7 +38,7 @@ const renderItem = (props: RenderItemProps) => {
   let child: React.ReactNode = null;
 
   // has child schema
-  if (schema?.properties) {
+  if (schema?.properties && schema?.widgetType !== 'field') {
     child = RenderCore({ schema, parentPath: path, rootPath })
     path = undefined;
   }
@@ -67,7 +67,7 @@ const RenderCore = (props: RenderCoreProps) : any => {
   }
 
   // render Objiect | field
-  return sortProperties(Object.entries(schema.properties)).map(([key, item]) => {
+  return sortProperties(Object.entries(schema.properties || {})).map(([key, item]) => {
     const path = [...parentPath, key];
    
     return renderItem({ schema: item, path, key, rootPath });

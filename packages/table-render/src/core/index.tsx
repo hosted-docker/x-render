@@ -1,9 +1,11 @@
-import React, { useContext, useEffect, useRef, useImperativeHandle } from 'react';
-import { useStore } from 'zustand';
+import React, { useEffect, useRef, useImperativeHandle } from 'react';
 import { useForm } from 'form-render';
+import { useUpdateEffect } from 'ahooks';
 
-import { TRContext } from './store';
+import { useTableStore } from './store';
 import { _get, isFunction, isArray } from '../utils';
+import { TableRenderProps } from '../types';
+
 import ErrorBoundary from './ErrorBoundary';
 import SearchView from './SearchView';
 import ToolbarView from './ToolbarView';
@@ -18,7 +20,7 @@ type ISearchParams = {
   sorter?: any;
 };
 
-const RenderCore = props => {
+const RenderCore: React.FC<TableRenderProps & { tableRef: any }> = props => {
   const {
     search: searchProps,
     debug, className,
@@ -31,6 +33,7 @@ const RenderCore = props => {
     size,
     tableWrapper,
     autoRequest = true,
+    columns,
     ...tableProps
   } = props;
 
@@ -39,27 +42,42 @@ const RenderCore = props => {
   const form = useForm();
   const rootRef = useRef<HTMLDivElement>(null);
 
-  const store = useContext(TRContext);
-  const inited = useStore(store, (state: any) => state.inited);
-  const currentTab = useStore(store, (state: any) => state.tab);
-  const tableSize = useStore(store, (state: any) => state.tableSize);
-  const pagination = useStore(store, (state: any) => state.pagination);
-  const loading = useStore(store, (state: any) => state.loading);
-  const setState = useStore(store, (state: any) => state.setState);
-  const getState = useStore(store, (state: any) => state.getState);
+  const inited = useTableStore((state) => state.inited);
+  const currentTab = useTableStore((state) => state.tab);
+  const tableSize = useTableStore((state) => state.tableSize);
+  const pagination = useTableStore((state) => state.pagination);
+  const setState = useTableStore((state) => state.setState);
+  const getState = useTableStore((state) => state.getState);
+  const setColumns = useTableStore((state) => state.setColumns);
 
   useEffect(() => {
-    setState({
+    const initState = {
       tableSize: size,
-      inited: true
-    });
+      inited: true,
+      pagination
+    };
+
+    if (typeof tableProps?.pagination === 'object' && tableProps?.pagination?.pageSize) {
+      initState.pagination.pageSize = tableProps.pagination.pageSize;
+    }
+    setState(initState);
   }, []);
+
+  useEffect(() => {
+    if (columns) {
+      setColumns(columns);
+    }
+  }, [columns]);
 
   useEffect(() => {
     if (inited && hiddenSearch && autoRequest) {
       refresh();
     }
   }, [inited]);
+
+  useUpdateEffect(() => {
+    refresh();
+  }, [currentTab])
 
   useImperativeHandle(tableRef, () => ({
     doSearch,
@@ -69,7 +87,8 @@ const RenderCore = props => {
     getState: () => ({
       ...getState(),
       search: form.getValues(true)
-    })
+    }),
+    setState,
   }));
 
   const fullScreen = () => {
@@ -78,11 +97,11 @@ const RenderCore = props => {
 
   const doSearch = (params: ISearchParams, customSearch?: Record<string, any>) => {
     const { current, pageSize, tab, sorter, ...extraSearch } = params || {};
-
+  
     const _pageNum = current || 1;
     const _pageSize = pageSize || 10;
 
-    let _tab = currentTab;
+    let _tab: any = currentTab;
     if (['string', 'number'].indexOf(typeof tab) > -1) {
       _tab = tab;
     }
@@ -96,10 +115,6 @@ const RenderCore = props => {
         ...extraSearch,
         ..._pagination,
       };
-
-      // if (Array.isArray(api)) {
-      //   _params = { ..._params, tab };
-      // }
 
       Promise.resolve(_api(_params, sorter, { tab: _tab }))
         .then(res => {
@@ -142,6 +157,7 @@ const RenderCore = props => {
     const _stay = (params && params.stay) || false;
     const _tab = params && params.tab;
     const _search = moreSearch || {};
+   
     doSearch(
       {
         ...params,
@@ -156,7 +172,7 @@ const RenderCore = props => {
   const changeTab = (tab: string | number) => {
     if (['string', 'number'].indexOf(typeof tab) > -1) {
       setState({ tab });
-      refresh({ tab });
+      // refresh({ tab });
     } else {
       console.error('changeTab的入参必须是number或string');
     }
@@ -183,8 +199,6 @@ const RenderCore = props => {
       />
       <TableView
         {...tableProps}
-        setState={setState}
-        getState={getState}
         doSearch={doSearch}
       />
     </div>

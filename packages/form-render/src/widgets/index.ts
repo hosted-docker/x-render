@@ -34,3 +34,6 @@ export { default as TableList } from './listTable';
 export { default as DrawerList } from './listDrawer';
 export { default as VirtualList } from './listVirtual';
 export { default as TabList } from './listTab';
+
+export { default as VoidTitle } from './voidTitle';
+export { default as ErrorSchema } from './ErrorSchema';

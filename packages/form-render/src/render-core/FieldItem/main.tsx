@@ -1,10 +1,9 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useRef, useEffect } from 'react';
 import { Form, Col, Row } from 'antd';
 import { useStore } from 'zustand';
 import classnames from 'classnames';
 
 import { isCheckBoxType, _get } from '../../utils';
-import { ConfigContext } from '../../models/context';
 import { getWidgetName, getWidget } from '../../models/mapping';
 import { getFormItemLayout } from '../../models/layout';
 import getRuleList from '../../models/validates';
@@ -31,23 +30,24 @@ import {
 } from './module';
 
 export default (props: any) => {
-  const { store, schema, path, children, dependValues, rootPath } = props;
+  const { configCtx, store, schema, path, children, dependValues, rootPath } = props;
 
   if (schema?.hidden) {
     return null;
   }
 
+  const fieldRef: any = useRef();
   const formCtx: any = useStore(store, (state: any) => state.context);
   const upperCtx: any = useContext(UpperContext);
-  const configCtx = useContext(ConfigContext);
+ 
   const { form, widgets, methods, globalProps } = configCtx;
 
-  const { hidden, properties, dependencies, inlineMode: _inlineMode, remove, removeText, visible = true, ...otherSchema } = schema;
+  const { reserveLabel, hidden, properties, dependencies, inlineMode: _inlineMode, remove, removeText, visible = true, validateTrigger, ...otherSchema } = schema;
 
   let widgetName = getWidgetName(schema);
   // Component not found
   if (!widgetName) {
-    const ErrorSchema = widgets['errorSchemaWidget'];
+    const ErrorSchema = widgets['errorSchema'] || widgets['ErrorSchema'];
     return <ErrorSchema schema={schema} />;
   }
 
@@ -61,8 +61,13 @@ export default (props: any) => {
     dependValues,
     globalProps,
     path: getPath(path),
-    rootPath
+    rootPath,
+    fieldRef
   });
+
+  useEffect(() => {
+    form.setFieldRef(fieldProps.addons.dataPath, fieldRef);
+  }, []);
 
   if (schema.type === 'void') {
     return ( 
@@ -114,7 +119,7 @@ export default (props: any) => {
           exist: true,
         }}
       >
-        {inlineSelf ? content : <Col span={24}>{content}</Col>}
+        {inlineSelf ? content : <Col span={24} className={classnames('fr-obj-col', { [schema.className] : !!schema.className })}>{content}</Col>}
       </UpperContext.Provider>
     );
   }
@@ -128,7 +133,7 @@ export default (props: any) => {
   const help = getExtraView('help', schema, widgets);
 
   const tooltip = getTooltip(schema, displayType);
-  const ruleList = getRuleList(schema, form, methods);
+  const ruleList = getRuleList(schema, form, methods, fieldRef);
   const readOnly = getValueFromKey('readOnly');
   const disabled = getValueFromKey('disabled');
 
@@ -146,29 +151,30 @@ export default (props: any) => {
     fieldProps.disabled = disabled;
   }
 
-  if (!label) {
-    noStyle = true;
+  if (reserveLabel && !label && displayType !== 'column') {
+    label = 'fr-hide-label';
   }
 
   if (readOnly) {
-    Widget = widgets[schema.readOnlyWidget] || widgets['html'];
+    Widget = widgets[schema.readOnlyWidget] || widgets['Html'];
   }
 
   // checkbox 布局有点特殊
   if (isCheckBoxType(schema, readOnly)) {
     fieldProps.title = label;
 
-    label = 'fr-hide-label';
-    if (displayType === 'inline') {
-      label = null;
-    }
+    label = null;
+    if (displayType === 'row') {
+      label = 'fr-hide-label';
+    } 
   }
 
   const initialValue = schema.default ?? schema.defaultValue;
+  const classRest = { 'fr-hide-label': label === 'fr-hide-label', 'fr-inline-field': inlineSelf, 'fr-field-visibility': !visible, [schema.className] : !! schema.className };
 
   const formItem = (
     <Form.Item
-      className={classnames('fr-field', { 'fr-hide-label': label === 'fr-hide-label', 'fr-inline-field': inlineSelf, 'fr-field-visibility': !visible })}
+      className={classnames('fr-field', classRest)}
       label={label}
       name={path}
       valuePropName={valuePropName}
@@ -182,6 +188,7 @@ export default (props: any) => {
       wrapperCol={fieldCol}
       noStyle={noStyle}
       dependencies={dependencies}
+      validateTrigger={ validateTrigger ?? fieldRef?.current?.validator ? 'onSubmit' : 'onChange' }
     >
       {fieldProps.onStatusChange ? (
         <FieldWrapperStatus 
@@ -204,7 +211,7 @@ export default (props: any) => {
   if (inlineSelf) {
     if (noStyle) {
       return (
-        <div className={classnames('fr-inline-field', { 'fr-field-visibility': !visible })}>
+        <div className={classnames('fr-inline-field', { 'fr-field-visibility': !visible, [schema.className] : !! schema.className })}>
           {formItem}
         </div>
       );

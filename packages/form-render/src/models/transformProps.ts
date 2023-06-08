@@ -20,8 +20,6 @@ const transformProps =  (props: any) => {
     debugCss,
     locale,
     configProvider,
-    allCollapsed,
-    debounceInput,
     validateMessages,
     debug,
     id,
@@ -39,7 +37,7 @@ const transformProps =  (props: any) => {
     disabled,
     // labelAlign,
     // colon,
-    // className,
+    className,
     // style,
     // disabled,
     // scrollToFirstError,
@@ -72,8 +70,6 @@ const transformProps =  (props: any) => {
     footer,
     form,
     labelWidth,
-    allCollapsed,
-    debounceInput, // 好像没用了
     validateMessages,
     debug, // 换成 form 还有用吗？
     id,
@@ -84,7 +80,8 @@ const transformProps =  (props: any) => {
     logOnSubmit,
     labelCol,
     fieldCol,
-    maxWidth
+    maxWidth,
+    className
   };
 };
 

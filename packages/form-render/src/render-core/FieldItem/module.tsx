@@ -1,12 +1,45 @@
 import React from 'react';
 import { _get, isObject, getArray, isArray, isNumber } from '../../utils';
 
+const filterHiddenData = (list: any[]) => {
+  if (!isArray(list)) {
+    return list;
+  }
+
+  let result = [];
+  for (let i = 0; i < list.length; i++) {
+    const item = list[i];
+    if (!item.hidden) {
+      let node = {
+        ...item,
+      };
+
+      if (item.children) {
+        let children = filterHiddenData(item.children);
+        if (children.length > 0) {
+          node.children = children;
+        }
+      }
+
+      if (item.items) {
+        let items = filterHiddenData(item.items);
+        if (items.length > 0) {
+          node.items = items;
+        }
+      }
+
+      result.push(node);
+    }
+  }
+  return result;
+}
+
 // return dataIndex、dataPath、schemaPath
 const getPathObj = ({ rootPath = [], path }) => {
   const pathList = (path || '').split('.');
-  const dataIndex = [];
-  const schemaIndex = [];
-  const dataPathList = [];
+  const dataIndex: any[] = [];
+  const schemaIndex: any[] = [];
+  const dataPathList: any[] = [];
 
   // dataIndex
   rootPath.forEach((item: any, index: number) => {
@@ -23,7 +56,7 @@ const getPathObj = ({ rootPath = [], path }) => {
   });
 
   // dataPath
-  let list = [...rootPath];
+  let list: any[] = [...rootPath];
   list.pop();
   list = [...list, ...pathList];
 
@@ -85,7 +118,7 @@ export const getLabel = (schema: any, displayType: string, widgets: any) => {
 
     if (description) {
       return (
-        <span className='fr-desc ml2'>
+        <span className='fr-desc'>
           ({description})
         </span>
       )
@@ -93,9 +126,9 @@ export const getLabel = (schema: any, displayType: string, widgets: any) => {
     return null;
   };
 
-  if (displayType === 'inline') {
-    return title;
-  }
+  // if (displayType === 'inline') {
+  //   return title;
+  // }
 
   return (
     <>
@@ -209,15 +242,16 @@ export const getParamValue = (formCtx: any, upperCtx: any, schema: any) => (valu
   return schema[valueKey] ?? upperCtx[valueKey];
 };
 
-export const getFieldProps = (widgetName: string, schema: any, { widgets, methods, form, dependValues, globalProps, path, rootPath }) => {
+export const getFieldProps = (widgetName: string, schema: any, { widgets, methods, form, dependValues, globalProps, path, rootPath, fieldRef }) => {
   const pathObj = getPathObj({ path, rootPath });
  
-  const fieldProps = {
+  let fieldProps = {
     ...schema.props,
     addons: {
       ...form,
       globalProps,
       dependValues,
+      fieldRef,
       ...pathObj
     }
   };
@@ -226,7 +260,7 @@ export const getFieldProps = (widgetName: string, schema: any, { widgets, method
     fieldProps.dependValues = dependValues;
   }
 
-  ['placeholder', 'disabled', 'format', 'onStatusChange', 'className'].forEach(key => {
+  ['placeholder', 'disabled', 'format', 'onStatusChange'].forEach(key => {
     if (schema[key]) {
       fieldProps[key] = schema[key];
     }
@@ -243,6 +277,13 @@ export const getFieldProps = (widgetName: string, schema: any, { widgets, method
       }
       return { label, value: item };
     });
+  }
+
+  if (isArray(fieldProps.options)) {
+    fieldProps = {
+      ...fieldProps,
+      options: filterHiddenData(fieldProps.options)
+    }
   }
 
   // 以 props 结尾的属性，直接透传
@@ -284,3 +325,40 @@ export const getFieldProps = (widgetName: string, schema: any, { widgets, method
   fieldProps.schema = schema;
   return fieldProps;
 };
+
+
+/*
+   * Get depend values
+   *
+   * 1. normal path
+   * Just get value of path in formData
+   *
+   * 2. list path
+   * Like `list[].foo`.`[]` means the same index as the current item.
+   * You can pass `[index]` to get specific item at the index of list, such as `list[1].foo`.
+   * Support more complex path like `list[].foo[].bar`
+   */
+export const getDependValues = (formData: any, dependPath: string, props: any, dependencieItem: any[]) => {
+  const indexReg =/\[[0-9]*\]/;
+
+  if (indexReg.test(dependPath)) {
+    const currentIndex = _get(props, 'path.0')
+    const dependIndex = dependPath
+      .match(indexReg)[0]
+      .replace('[', '')
+      .replace(']', '')
+
+    const listPath = dependPath.split(indexReg)[0];
+    const itemIndex = dependIndex || currentIndex;
+    const itemPath = dependPath.replace(`${listPath}[${dependIndex}].`, '')
+    const listData = _get(formData, `${listPath}[${itemIndex}]`);
+
+    dependencieItem.push(listPath, itemIndex);
+
+    return getDependValues(listData, itemPath, props, dependencieItem);
+  }
+
+  dependencieItem.push(...dependPath.split('.'));
+
+  return _get(formData, dependPath);
+}

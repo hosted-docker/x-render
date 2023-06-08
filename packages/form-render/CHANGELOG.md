@@ -1,5 +1,46 @@
 # 更新日志
 
+### 2.2.3
+- [!] 修复 List 组件使用函数表达式，依赖值变化组件不更新
+- [+] collapse 折叠组件，支持配置 bordered、ghost 属性
+- [+] 进一步优化组件更新逻辑，精确更新，自动匹配关联表单项值是否变化
+- [+] 增加 widgetType 字段，当 widgetType = 'field'时，强制走自定义组件逻辑，用于区分容器组件逻辑一般无需配置
+### 2.1.29
+- [!] 修复子表单场景，默认只在表单提交时触发校验
+- [+] 增加 form.getFieldRef API，自定义组件可以暴露实例，供 getFieldRef 使用
+
+### 2.1.28
+- [+] 增加 ListTable、ListVirtual 校验增加非气泡模式配置
+ globalConfig = { listValidatePopover: false }
+- [+] 增加子表单校验配置，详细内容查看表单校验文档
+
+### 2.1.25
+- [+] 增加 form.getFlattenSchema API
+- [+] List 场景支持 rules: []，整体校验配置
+- [!] 修复 TableList 场景，输入框控件自定义校验提示异常
+
+### 2.1.21
+- [!] 修复 DrawerList 编辑时，报错
+### 2.1.20
+- [!] 修复 validateFields 调用无效
+### 2.1.17
+- [!] 修复 labelWidth 设置 0，无效
+### 2.1.16
+- [+] 增强 dependencies 字段能力，支持 List 嵌套 dependencies 配置
+### 2.1.15
+- [+] 增强 bind 字段能力，支持 List 嵌套 bind 配置
+- [+] 增加 Field className 配置
+### 2.1.14
+- [!] 修复 单个控件校验提示出现多个，例如 required 和 max 不满足时会同时出现提示
+
+### 2.1.13
+- [!] 修复 校验 min = 0 时，不生效
+- [+] cardList 增加 useMemo 提升表单输入性能，避免输入卡顿
+
+### 2.1.12
+
+### 2.1.11
+- [!] 修复 form-render schema.enum.indexof 错误
 ### 2.1.10
 - [+] 扩展 list 组件 actionColumnProps 配置属性
 ### 2.1.9

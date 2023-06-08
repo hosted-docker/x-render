@@ -1,6 +1,7 @@
 import React, { useEffect, useContext, FC } from 'react';
 import { Form, Row, Col, Button, Space, ConfigProvider } from 'antd';
 import { useStore } from 'zustand';
+import classNames from 'classnames';
 
 import { valueRemoveUndefined, _cloneDeep, translation, isFunction } from '../utils';
 import { FRContext } from '../models/context';
@@ -10,7 +11,6 @@ import { getFormItemLayout } from '../models/layout';
 import {FRProps} from '../type'
 
 import {
-  transformFieldsError,
   valuesWatch,
   immediateWatch,
   yymmdd,
@@ -23,7 +23,7 @@ import RenderCore from '../render-core';
 import './index.less';
 
 const FormCore:FC<FRProps> = (props) => {
-  const store = useContext(FRContext);
+  const store: any = useContext(FRContext);
   const schema = useStore(store, (state: any) => state.schema);
   const flattenSchema = useStore(store, (state: any) => state.flattenSchema);
   const setContext = useStore(store, (state: any) => state.setContext);
@@ -54,6 +54,7 @@ const FormCore:FC<FRProps> = (props) => {
     logOnMount,
     logOnSubmit,
     id,
+    className,
   } = transformProps({ ...props, ...schemProps });
 
   useEffect(() => {
@@ -81,9 +82,11 @@ const FormCore:FC<FRProps> = (props) => {
 
   const initial = async () => {
     onMount && await onMount();
-    const values = form.getValues();
-    immediateWatch(watch, values);
     onMountLogger();
+    setTimeout(() => {
+      const values = form.getValues();
+      immediateWatch(watch, values);
+    }, 0);
   };
 
   const onMountLogger = () => {
@@ -147,7 +150,7 @@ const FormCore:FC<FRProps> = (props) => {
   };
 
   const handleValuesChange = (changedValues: any, _allValues: any) => {
-    const allValues = valueRemoveUndefined(_allValues);
+    const allValues = valueRemoveUndefined(_allValues, true);
     valuesWatch(changedValues, allValues, watch);
   };
 
@@ -163,7 +166,6 @@ const FormCore:FC<FRProps> = (props) => {
     let fieldsError = beforeFinish
       ? await beforeFinish({ data: values, schema, errors: [] })
       : null;
-    fieldsError = transformFieldsError(fieldsError);
 
     // console.log(values, form.getValues(true));
     // Stop submit
@@ -191,10 +193,15 @@ const FormCore:FC<FRProps> = (props) => {
   };
 
   const operlabelCol = getFormItemLayout(column, {}, { labelWidth })?.labelCol;
+  
+  const classRest: any = {};
+  if (className) {
+    classRest[className] = true;
+  }
 
   return (
     <Form
-      className='fr-form'
+      className={classNames('fr-form', classRest )}
       labelWrap={true}
       {...formProps}
       disabled={disabled}

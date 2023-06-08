@@ -1,5 +1,12 @@
 # 更新日志
 
+### 2.0.18
+-[!] 修复 table-render 切换 pageSize 无效
+### 2.0.17
+-[!] 修复 table-render 配置 pagesize 查询无效
+### 2.0.16
+-[+] 工具栏增加列字段筛选显示
+
 ### 2.0.13
 -[+] 增加 tableWrapper 属性，可以通过 tableWrapper 在搜索栏和表格之间增加一些内容
 ### 2.0.9

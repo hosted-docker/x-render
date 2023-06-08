@@ -2,8 +2,10 @@ import React, { useContext } from 'react';
 import { Form } from 'antd';
 
 import { _get } from '../../utils';
-import { FRContext } from '../../models/context';
+import { getDependValues } from './module';
+import { FRContext, ConfigContext } from '../../models/context';
 import { isHasExpression, parseAllExpression } from '../../models/expression';
+import fieldShouldUpdate from '../../models/fieldShouldUpdate';
 import Main from './main';
 
 export default (props: any) => {
@@ -12,28 +14,47 @@ export default (props: any) => {
   const store = useContext(FRContext);
   const { schema: formSchema } = store.getState();
 
+  const configCtx = useContext(ConfigContext);
+  const mustacheDisabled = configCtx?.globalConfig?.mustacheDisabled;
+  const shouldUpdateOpen = configCtx?.globalConfig?.shouldUpdateOpen;
+
+  const dependencies = schema?.dependencies;
+
   // No function expressions exist
-  if (!isHasExpression(schema) && !schema?.dependencies) {
-    return <Main {...props} store={store} />;
+  if ((!isHasExpression(schema) && !mustacheDisabled) && (!dependencies || !dependencies?.length)) {
+    return <Main {...props} store={store} configCtx={configCtx} />;
   }
 
+  const schemaStr = JSON.stringify(schema);
   // Need to listen to form values for dynamic rendering
   return (
     <Form.Item
       noStyle
-      //dependencies={schema.dependencies}
-      shouldUpdate={(prevValues, curValues) => {
-        // Observe whether the value of a function expression dependency has changed
-        // TODO 进行优化
-        return true;
-      }}
+      shouldUpdate={fieldShouldUpdate(schemaStr, rootPath, dependencies, shouldUpdateOpen)}
     >
       {(form: any) => {
         const formData = form.getFieldsValue(true);
-        const dependValues = (schema.dependencies || []).map((item: any) => _get(formData, item));
-        const newSchema = parseAllExpression(schema, formData, rootPath, formSchema);
-  
-        return <Main schema={newSchema} rootPath={rootPath} {...otherProps} dependValues={dependValues} store={store} />;
+        const formDependencies: any[] = [];
+        const dependValues = (dependencies || []).map((depPath: string) => {
+          const item:any[] = [];
+          formDependencies.push(item);
+          return getDependValues(formData, depPath, props, item);
+        });
+        const newSchema = mustacheDisabled ? schema : parseAllExpression(schema, formData, rootPath, formSchema);
+
+        return (
+          <Main 
+            schema={{
+              ...newSchema,
+              dependencies: formDependencies
+            }} 
+            rootPath={rootPath} 
+            {...otherProps}
+            dependValues={dependValues} 
+            store={store} 
+            configCtx={configCtx} 
+          />
+        );
       }}
     </Form.Item>
   );

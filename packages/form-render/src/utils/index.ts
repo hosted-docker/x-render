@@ -1,4 +1,4 @@
-import { set, get, cloneDeep, has, merge, mergeWith, isUndefined, omitBy } from 'lodash-es';
+import { isMatch, some, set, get, cloneDeep, has, merge, mergeWith, isUndefined, omitBy } from 'lodash-es';
 
 export const _set = set;
 export const _get = get;
@@ -8,6 +8,8 @@ export const _merge = merge;
 export const _mergeWith = mergeWith;
 export const _isUndefined = isUndefined;
 export const _omitBy = omitBy;
+export const _some = some;
+export const _isMatch = isMatch;
 
 export const isObject = (data: any) => {
   const str = Object.prototype.toString.call(data);
@@ -73,14 +75,14 @@ export function getFormat(format) {
 // TODO: to support case that item is not an object
 export function isObjType(schema: any) {
   //return schema?.type === 'object' && schema.properties && !schema.widget;
-  return schema?.type === 'object' && schema.properties;
+  return schema?.type === 'object' && schema?.properties && schema?.widgetType !== 'field';
 };
 
 export function isListType(schema: any) {
   return schema?.type === 'array' && isObjType(schema?.items) && schema?.enum === undefined;
 };
 
-export function isCheckBoxType(schema, readOnly) {
+export function isCheckBoxType(schema: any, readOnly: boolean) {
   if (readOnly) return false;
   if (schema.widget === 'checkbox') return true;
   if (schema && schema.type === 'boolean') {
@@ -90,7 +92,7 @@ export function isCheckBoxType(schema, readOnly) {
   }
 }
 
-export const valueRemoveUndefined = (values: any) => {
+export const valueRemoveUndefined = (values: any, notFilter?: boolean) => {
   const recursionArray = (list: any[]) => {
     let result = list.map(item => {
       if (isObject(item)) {
@@ -123,7 +125,8 @@ export const valueRemoveUndefined = (values: any) => {
       }
 
       if (isArray(item)) {
-        data[key] = recursionArray(item);
+        const result = recursionArray(item) || [];
+        data[key] = notFilter ? result : result.filter((item: any) => item !== undefined);
       }
     });
 
@@ -134,7 +137,7 @@ export const valueRemoveUndefined = (values: any) => {
     }
     return data;
   }
-
+ 
   return recursionObj(values) || {};
 }
 
@@ -142,5 +145,17 @@ export const translation = (configCtx: any) => (key: string) => {
   const locale = configCtx?.locale.FormRender;
   return locale[key];
 }
+
+export const hasFuncProperty = (obj: any) => {
+  return _some(obj, (value) => {
+    if (isFunction(value)) {
+      return true;
+    }
+    if (isObject(value)) {
+      return hasFuncProperty(value);
+    }
+    return false;
+  });
+};
 
 

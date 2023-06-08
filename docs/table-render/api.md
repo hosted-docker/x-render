@@ -1,5 +1,6 @@
 ---
 order: 0
+mobile: false
 group: 
   title: 其他
   order: 5
@@ -10,16 +11,23 @@ group:
 
 对 Antd Table 的 [props](https://ant-design.antgroup.com/components/table-cn/#Table) 完全兼容，但 `dataSource`, `loading` 这两个参数是内部状态，不允许配置
 
-| 属性                  | 描述                                                                      | 类型                 | 默认值     |
-| --------------------- | ------------------------------------------------------------------------ | ------------------- | --------- |
-| search                | 搜索表单，不传就是无查询列表                                                                  | [Search](#search)| - | -   |
-| request                | **必填**，初始化&点击查询时执行的函数                                            | [Request](#request-1)    | - | -   |    
-| title                 | 表格标题                                                                  | `string \| ReactNode`| - | -   |
-| toolbarRender         | 表格主体右上方的控件，例如“添加”按钮                                      | `() => ReactNode` | false     |
-| toolbarAction         | 显示在表格主体右上方的 Icon 列表，内置了刷新、调整密度、全屏显示等功能 | `boolean`           | false     |
-| pageChangeWithRequest | 切换分页时是否需要请求接口                                                | `boolean`           | true      |
-| columns               | 列定义                                                                    | [ProColumnsType](#columns)    | -     |
+| 属性                  | 描述                                                                   | 类型                             | 默认值 |
+| --------------------- | ---------------------------------------------------------------------- | -------------------------------- | ------ |
+| search                | 搜索表单，不传就是无查询列表                                           | [Search](#search)                | -      | - |
+| request               | **必填**，初始化&点击查询时执行的函数                                  | [Request](#request-1)            | -      | - |
+| title                 | 表格标题                                                               | `string \| ReactNode`            | -      | - |
+| toolbarRender         | 表格主体右上方的控件，例如“添加”按钮                                   | `() => ReactNode`                | false  |
+| toolbarAction         | 显示在表格主体右上方的 Icon 列表，内置了刷新、调整密度、全屏显示等功能 | `boolean \| ToolbarActionConfig` | false  |
+| pageChangeWithRequest | 切换分页时是否需要请求接口                                             | `boolean`                        | true   |
+| columns               | 列定义                                                                 | [ProColumnsType](#columns)       | -      |
 
+### ToolbarActionConfig
+
+工具栏的具体配置
+
+| 属性    | 描述       | 类型                                                                          | 默认值    | 版本 |
+| ------- | ---------- | ----------------------------------------------------------------------------- | --------- | ---- |
+| enabled | 启用的功能 | ` Array<'refresh' \| 'columnsSetting' \| 'fullScreen' \| 'density'>` | `['refresh', 'columnsSetting', 'fullScreen', 'density']` |      |
 
 ## Search
 
@@ -27,7 +35,7 @@ group:
 
 | 属性               | 描述                                                                                  | 类型                                   | 默认值  |
 | ------------------ | ------------------------------------------------------------------------------------- | -------------------------------------- | ------- | 
-| schema             | **必填**，用于渲染查询表单，详见[form-render 文档](/form-render/schema/schema) | [SchemaBase](https://github.com/alibaba/x-render/blob/master/packages/form-render/src/index.d.ts#L16)                               | -       | 
+| schema             | **必填**，用于渲染查询表单，详见[form-render 文档](/form-render/api-schema) | <a target="_blank" href="https://github.com/alibaba/x-render/blob/e2feff8fdb3bef5537b92a2157dbbf40b9d4eb17/packages/form-render/src/type.ts#L32">SchemaBase</a>                               | -       | 
 | collapsed           | 是否可折叠                             | `boolean`          |  -    |
 | defaultCollapsed    | 折叠收起                               | `boolean`          |  true   |
 | loading             | 查询按钮加载中                          | `boolean`          |  -    |
@@ -37,7 +45,7 @@ group:
 | afterSearch        | 在表格查询结束后执行一些额外的操作                                                    | `(params) => void`                             | -       |
 | searchOnMount      | 组件初次挂载时，是否默认执行查询动作                                                  | `boolean`                              | true  | 
 | hidden             | 是否隐藏 `<Search />` 组件                                                              | `boolean`                              | false |
-| searchBtnRender    | 自定义表单查询按钮                                                                    | `(refresh,clearSearch) => ReactNode[]` | -       | 
+| searchBtnRender    | 自定义表单查询按钮                                                                    | `(refresh,clearSearch, { loadding }) => ReactNode[]` | -       | 
 | searchBtnStyle     | 自定义表单操作按钮组的样式                                                            | `CSSProperties`                  | -      | 
 | searchBtnClassName | 自定义表单操作按钮组的 ClassName                                                      | `string`                               | -      | 
 | searchWithError    | 表单校验失败时，是否继续执行查询操作                                                  | `boolean`                              | true    |
@@ -86,28 +94,28 @@ const request = [
 ```
 ## Columns
 
-columns 为 antd 已有的 props，支持 antd 所有的 [columns](https://ant.design/components/table-cn/#Column) 配置，同时也提供了一些更方便的 api，加快书写
+columns 为 antd 已有的 props，支持 antd 所有的 <a href="https://ant.design/components/table-cn/#Column" target="_blank">columns</a> 配置，同时也提供了一些更方便的 api，加快书写
 
-| 属性      | 描述                                                | 类型                                                  | 默认值 |
-| --------- | --------------------------------------------------- | ----------------------------------------------------- | ------ |
-| ellipsis  | 是否自动缩略                                        | `boolean`                                               | -      |
-| copyable  | 是否支持复制                                        | `boolean`                                               | -      |
-| valueType | 值的类型，详见 [ValueType](#valuetype)                 | `'text' \| 'money' \| 'date' \| 'dateTime'` | text |
-| enum      | 当前列值的枚举，详见[Enum](#enum) | `object`                                              | -      |
+| 属性      | 描述                                   | 类型                                        | 默认值 |
+| --------- | -------------------------------------- | ------------------------------------------- | ------ |
+| ellipsis  | 是否自动缩略                           | `boolean`                                   | -      |
+| copyable  | 是否支持复制                           | `boolean`                                   | -      |
+| valueType | 值的类型，详见 [ValueType](#valuetype) | `'text' \| 'money' \| 'date' \| 'dateTime'` | text   |
+| enum      | 当前列值的枚举，详见[Enum](#enum)      | `object`                                    | -      |
 
 #### ValueType
 
 TableRender 封装了一些常用的值类型来减少重复的 render 操作，配置一个 valueType 即可展示格式化响应的数据
 
-  | 属性     | 描述                                                               |
-  | -------- | ------------------------------------------------------------------ |
-  | text     | 普通的文本类型                                                     |
-  | date     | 当数据是日期类型的返回时，会自动将格式转换为 `YYYY-MM-DD`          |
-  | dateTime | 当数据是日期类型的返回时，会自动将格式转换为 `YYYY-MM-DD HH:mm:ss` |
-  | dateRange | 当数据是日期区间类型的返回时，会自动将格式转换为 `YYYY-MM-DD`          |
-  | money    | 当数据是金额时，会自动将格式转换为 `¥0,0.00`               |
-  | money    | 当数据是金额时，会自动将格式转换为 `¥0,0.00`               |
-  | money    | 当数据是金额时，会自动将格式转换为 `¥0,0.00`               |
+  | 属性      | 描述                                                               |
+  | --------- | ------------------------------------------------------------------ |
+  | text      | 普通的文本类型                                                     |
+  | date      | 当数据是日期类型的返回时，会自动将格式转换为 `YYYY-MM-DD`          |
+  | dateTime  | 当数据是日期类型的返回时，会自动将格式转换为 `YYYY-MM-DD HH:mm:ss` |
+  | dateRange | 当数据是日期区间类型的返回时，会自动将格式转换为 `YYYY-MM-DD`      |
+  | money     | 当数据是金额时，会自动将格式转换为 `¥0,0.00`                       |
+  | money     | 当数据是金额时，会自动将格式转换为 `¥0,0.00`                       |
+  | money     | 当数据是金额时，会自动将格式转换为 `¥0,0.00`                       |
 
 
   ```js
@@ -148,13 +156,13 @@ const columns = [
 
 可通过 `Ref` 获取如下 `table-render` 的 context
 
-| 属性       | 描述                                                                                                                 | 类型       |
-| ---------- | -------------------------------------------------------------------------------------------------------------------- | ---------- |
-| refresh    | 刷新表格数据，详见[Refresh](#refresh)                                                                                                         | `(config, search) => Promise<void>` |
-| changeTab  | 手动切换 tab 的函数，例如目前两个搜索 tab： “我的活动”，“全部活动” （分别对应 tab 值为 0 和 1），详见[ChangeTab](#changetab)                      | `(tab) => void` |
-| form       | Search 组件是 form-render 生成的，可以取到搜索表单的 form 实例以及挂在上面的方法，例如 `form.resetFields` 清空搜索项 | `object`   |
-| getState | 这些是全局的状态，根据需要使用                                                                                       | [TableStateType](#tablestate)   |
-| setState   | 用于修改全局状态的工具函数，setTable 之于 tableState，等同 setState 之于 state                                       | `(tableState) => void` |
+| 属性      | 描述                                                                                                                         | 类型                                |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| refresh   | 刷新表格数据，详见[Refresh](#refresh)                                                                                        | `(config, search) => Promise<void>` |
+| changeTab | 手动切换 tab 的函数，例如目前两个搜索 tab： “我的活动”，“全部活动” （分别对应 tab 值为 0 和 1），详见[ChangeTab](#changetab) | `(tab) => void`                     |
+| form      | Search 组件是 form-render 生成的，可以取到搜索表单的 form 实例以及挂在上面的方法，例如 `form.resetFields` 清空搜索项         | `object`                            |
+| getState  | 这些是全局的状态，根据需要使用                                                                                               | [TableStateType](#tablestate)       |
+| setState  | 用于修改全局状态的工具函数，setTable 之于 tableState，等同 setState 之于 state                                               | `(tableState) => void`              |
 
 #### Refresh
 
