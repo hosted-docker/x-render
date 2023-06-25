@@ -178,7 +178,6 @@ const SearchForm: <RecordType extends object = any>(
     () => {
       resizeObserver.disconnect();
     }
-  }, []);
   };
 
   const initMount = async () => {
@@ -235,12 +234,6 @@ const SearchForm: <RecordType extends object = any>(
         operateExtra={operateShow && (
           <Col
             className={classnames('search-action-col', {
-                'search-action-fixed': limitHeight,
-                'search-action-column': isColumn,
-                'search-action-column-fixed': limitHeight && isColumn,
-            })}
-          <Col
-            className={classnames('search-action-col', {
               'search-action-fixed': limitHeight,
               'search-action-column': isColumn,
               'search-action-column-fixed': limitHeight && isColumn,
@@ -282,4 +275,3 @@ export default withProvider(SearchForm, {
   Html,
   PercentSlider
 });
-
