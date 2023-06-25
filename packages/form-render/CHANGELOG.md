@@ -1,5 +1,16 @@
 # 更新日志
 
+### 2.2.8
+- [+] SearchForm 增加 onReset 自定义重置方法
+- [-] 修复 setSchemaByPath 判断，在某些情况不生效
+- [-] 修复 SearchForm layoutAuto 自适应布局异常
+### 2.2.6
+- [+] SearchForm 增加 closeReturnSearch 关闭回车查询属性
+
+### 2.2.5
+- [!] 修复 react hook 提示错误
+### 2.2.4
+- [!] 修复 SearchForm 开启layoutAuto，重新激活页面，collapsed会失效
 ### 2.2.3
 - [!] 修复 List 组件使用函数表达式，依赖值变化组件不更新
 - [+] collapse 折叠组件，支持配置 bordered、ghost 属性

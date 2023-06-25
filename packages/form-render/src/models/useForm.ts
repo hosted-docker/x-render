@@ -133,7 +133,7 @@ const useForm = () => {
   // 设置某个字段的协议
   xform.setSchemaByPath = (_path: string, _newSchema: any) => {
     // diff 判断是否需要更新，存在函数跳过
-    if (!hasFuncProperty(_newSchema) && _isMatch(xform.getSchemaByPath(_path), _newSchema)) {
+    if (!hasFuncProperty(_newSchema) && _isMatch(_newSchema, xform.getSchemaByPath(_path))) {
       return;
     }
 
@@ -174,6 +174,13 @@ const useForm = () => {
 
   // 设置某个字段的值
   xform.setValueByPath = (path: string, value: any) => {
+    if (!form.setFieldValue) {
+      const values = form.getFieldsValue();
+      _set(values, path, value);
+      xform.setValues(values);
+      return;
+    }
+
     const name = getFieldName(path);
     form.setFieldValue(name, value);
 

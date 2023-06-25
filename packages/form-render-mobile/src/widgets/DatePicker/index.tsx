@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 import formatPlugin from 'dayjs/plugin/advancedFormat';
 import weekOfYearPlugin from 'dayjs/plugin/weekOfYear';
 import updateLocalePlugin from 'dayjs/plugin/updateLocale';
-import { omit } from 'lodash';
+import { omit } from 'lodash-es';
 
 dayjs.extend(updateLocalePlugin);
 dayjs.extend(formatPlugin);
@@ -33,17 +33,22 @@ export default (props: any) => {
   }));
 
   const dateFormat = format || getFormat(precision);
+  
+  const handleChange = (date: Date) => {
+    const dateString = dayjs(date).format(dateFormat);
+    onChange(dateString);
+  }
 
   return (
     <AntdDatePicker
       ref={pickerRef}
-      value={value}
-      onConfirm={(value) => onChange(value)}
+      value={dayjs(value, dateFormat).toDate()}
+      onConfirm={handleChange}
       precision={precision}
       {...restProps}
     >
-      {value => (
-        <div>{value ? dayjs(value).format(dateFormat) : <span style={{ color: '#ccc' }}>{placeholder}</span>}</div>
+      {date => (
+        <div>{(date && value) ? dayjs(date).format(dateFormat) : <span style={{ color: '#ccc' }}>{placeholder}</span>}</div>
       )}
     </AntdDatePicker>
   )

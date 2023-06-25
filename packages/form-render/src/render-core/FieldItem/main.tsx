@@ -32,26 +32,15 @@ import {
 export default (props: any) => {
   const { configCtx, store, schema, path, children, dependValues, rootPath } = props;
 
-  if (schema?.hidden) {
-    return null;
-  }
-
   const fieldRef: any = useRef();
   const formCtx: any = useStore(store, (state: any) => state.context);
   const upperCtx: any = useContext(UpperContext);
- 
+
   const { form, widgets, methods, globalProps } = configCtx;
-
   const { reserveLabel, hidden, properties, dependencies, inlineMode: _inlineMode, remove, removeText, visible = true, validateTrigger, ...otherSchema } = schema;
-
-  let widgetName = getWidgetName(schema);
-  // Component not found
-  if (!widgetName) {
-    const ErrorSchema = widgets['errorSchema'] || widgets['ErrorSchema'];
-    return <ErrorSchema schema={schema} />;
-  }
-
   const getValueFromKey = getParamValue(formCtx, upperCtx, schema);
+  
+  const widgetName = getWidgetName(schema);
   let Widget = getWidget(widgetName, widgets);
 
   const fieldProps = getFieldProps(widgetName, schema, {
@@ -68,6 +57,16 @@ export default (props: any) => {
   useEffect(() => {
     form.setFieldRef(fieldProps.addons.dataPath, fieldRef);
   }, []);
+
+  if (schema?.hidden) {
+    return null;
+  }
+
+  // Component not found
+  if (!widgetName) {
+    const ErrorSchema = widgets['errorSchema'] || widgets['ErrorSchema'];
+    return <ErrorSchema schema={schema} />;
+  }
 
   if (schema.type === 'void') {
     return ( 
