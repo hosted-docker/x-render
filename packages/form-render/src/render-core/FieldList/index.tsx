@@ -2,13 +2,18 @@ import React, { useContext } from 'react';
 import { Form } from 'antd';
 
 import { _get } from '../../utils';
-import { ConfigContext } from '../../models/context';
-import { isHasExpression } from '../../models/expression';
+import { FRContext, ConfigContext } from '../../models/context';
+import { isHasExpression, parseAllExpression } from '../../models/expression';
 import fieldShouldUpdate from '../../models/fieldShouldUpdate';
+
 import Main from './main';
 
 export default (props: any) => {
   const { schema, rootPath } = props;
+  const { items, ...listSchema } = schema || {};
+
+  const store = useContext(FRContext);
+  const { schema: formSchema } = store.getState();
 
   const configCtx = useContext(ConfigContext);
   const mustacheDisabled = configCtx?.globalConfig?.mustacheDisabled;
@@ -19,15 +24,26 @@ export default (props: any) => {
     return <Main configContext={configCtx} {...props}  />;
   }
 
-  const schemaStr = JSON.stringify(schema);
   // Need to listen to form values for dynamic rendering
   return (
     <Form.Item
       noStyle
-      shouldUpdate={fieldShouldUpdate(schemaStr, rootPath, dependencies, true)}
+      shouldUpdate={fieldShouldUpdate(JSON.stringify(listSchema || {}), rootPath, dependencies, true)}
     >
-      {() => {
-        return <Main configContext={configCtx} {...props}  />;
+      {(form: any) => {
+       const formData = form.getFieldsValue(true);
+       const newListSchema = mustacheDisabled ? schema : parseAllExpression(listSchema, formData, rootPath, formSchema);
+        return (
+          <Main 
+            configContext={configCtx} 
+            {...props} 
+            schema={{
+              items,
+              ...newListSchema
+            }}
+            rootPath={rootPath}
+          />
+        );
       }}
     </Form.Item>
   );

@@ -144,7 +144,7 @@ export default (props: any) => {
   const getValueFromKey = getParamValue(formCtx, upperCtx, schema);
 
   const readOnly = getValueFromKey('readOnly');
-  const preRootPath = (rootPath || []).splice(0, rootPath.length - 1);
+  const preRootPath = [...(rootPath || [])].splice(0, rootPath.length - 1);
   const displayType = getValueFromKey('displayType');
 
   if (hideMove === undefined && globalConfig?.listOperate?.hideMove) {
@@ -176,7 +176,7 @@ export default (props: any) => {
   if (!readOnly) {
     ruleList = [
       {
-        validator: async (_, data) => {
+        validator: async (_: any, data: any) => {
           setListData(data);
           if (!otherSchema?.min) {
             return;
