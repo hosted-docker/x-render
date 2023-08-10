@@ -1,0 +1,26 @@
+name: Scheduled Merge Remote Action
+
+on:
+  schedule:
+    - cron: '0 7 * * *' # ron on 7am every day
+  workflow_dispatch:
+  
+env:
+  target_branch: ${{ secrets.target_branch && secrets.target_branch || 'master' }}
+
+jobs:
+  merge-upstream:
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ env.target_branch }}     # set the branch to merge to
+          fetch-depth: 0
+      - name: Merge Upstream ${{ env.target_branch }}
+        uses: exions/merge-upstream@v1
+        with:
+          upstream: alibaba/x-render       # set the upstream repo
+          upstream-branch: master              # set the upstream branch to merge from
+          branch: ${{ env.target_branch }}  # set the branch to merge to
