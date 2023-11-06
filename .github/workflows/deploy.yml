@@ -24,3 +24,20 @@ jobs:
           repository: xbeeant/x-render
           tags: latest
 
+      - name: zip zite
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r xrender-site.zip docs-dist
+
+      - name: Generate release tag
+        id: tag
+        run: |
+          echo "::set-output name=release_tag::sites_$(date +"%Y.%m.%d_%H_%M_%S")"
+
+      - name: GH Release
+        # You may pin to the exact commit or the version.
+        # uses: softprops/action-gh-release@de2c0eb89ae2a093876385947365aca7b0e5f844
+        uses: softprops/action-gh-release@v0.1.15
+        with:
+          tag_name: ${{ steps.tag.outputs.release_tag }}
+          files: xrender-site.zip
