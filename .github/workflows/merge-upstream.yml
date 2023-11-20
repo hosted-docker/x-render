@@ -24,3 +24,4 @@ jobs:
           upstream: alibaba/x-render       # set the upstream repo
           upstream-branch: master              # set the upstream branch to merge from
           branch: ${{ env.target_branch }}  # set the branch to merge to
+          ff: --no-ff
