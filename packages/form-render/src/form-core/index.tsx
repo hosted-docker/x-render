@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, FC } from 'react';
+import React, { useEffect, useContext, FC, useMemo } from 'react';
 import { Form, Row, Col, Button, Space, ConfigProvider } from 'antd';
 import classNames from 'classnames';
 import { cloneDeep } from 'lodash-es';
@@ -195,6 +195,23 @@ const FormCore:FC<FRProps> = (props) => {
   };
 
   const operlabelCol = getFormItemLayout(column, {}, { labelWidth })?.labelCol;
+
+  const actionBtns = [];
+  if (!footer?.reset?.hide) {
+    actionBtns.push(
+      <Button {...footer?.reset} onClick={() => form.resetFields()}>
+        {footer?.reset?.text || t('reset')}
+      </Button>
+    );
+  }
+  if (!footer?.submit?.hide) {
+    actionBtns.push(
+      <Button type='primary' onClick={form.submit} {...footer?.submit}>
+        {footer?.submit?.text || t('submit')}
+      </Button>
+    );
+  }
+  
   return (
     <Form
       className={classNames('fr-form', { [className]: !!className } )}
@@ -218,28 +235,10 @@ const FormCore:FC<FRProps> = (props) => {
               labelCol={operlabelCol}
               className='fr-hide-label'
             >
-              {isFunction(footer) ? ( 
-                <Space>{footer()}</Space>
-              ): (
-                <Space>
-                  {!footer?.reset?.hide && (
-                    <Button 
-                      {...footer?.reset} 
-                      onClick={() => form.resetFields()}
-                    >
-                      {footer?.reset?.text || t('reset')}
-                    </Button>
-                  )}
-                  {!footer?.submit?.hide && (
-                    <Button
-                      type='primary'
-                      onClick={form.submit}
-                      {...footer?.submit}
-                    >
-                      {footer?.submit?.text || t('submit')}
-                    </Button>
-                  )}
-                </Space>
+               {isFunction(footer) ? (
+                <Space>{footer(actionBtns)}</Space>
+              ) : (
+                <Space>{actionBtns}</Space>
               )}
             </Form.Item>
           </Col>

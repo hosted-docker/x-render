@@ -313,6 +313,7 @@ export interface FRProps extends Omit<AntdFormProps, 'form'> {
    * label 标签的文本对齐方式
    */
   labelAlign?: 'right' | 'left';
+  fieldCol?: number | ColProps;
   /**
    *  只读模式
    */
@@ -402,7 +403,7 @@ export interface FRProps extends Omit<AntdFormProps, 'form'> {
   methods?: Record<string, Function>;
   operateExtra?: React.ReactNode;
   maxWidth?: number | string;
-  footer?: boolean | (() => React.ReactNode) | Partial<ActionProps> ;
+  footer?: boolean | ((dom: React.JSX.Element[]) => React.ReactNode) | Partial<ActionProps> ;
 }
 
 export interface SearchProps<RecordType> extends Omit<FRProps, 'form'> {
