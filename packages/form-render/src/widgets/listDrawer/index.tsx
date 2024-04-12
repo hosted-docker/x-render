@@ -2,13 +2,13 @@
 
 
 
-import React, { useState, useRef, useContext } from 'react';
-import { Space, Table, Form, Button, Popconfirm, ConfigProvider, Tooltip, Divider } from 'antd';
+import React, { useState, useRef } from 'react';
+import { Space, Table, Form, Button, Popconfirm, Tooltip, Divider } from 'antd';
 import { ArrowDownOutlined, ArrowUpOutlined, PlusOutlined, InfoCircleOutlined, CloseOutlined, CopyOutlined } from '@ant-design/icons';
 import type { FormListFieldData, FormListOperation, TableColumnsType } from 'antd';
+import sortProperties from '../../models/sortProperties';
 import FormDrawer from './drawerForm';
 import FButton from '../components/FButton';
-import { translation } from '../utils';
 import './index.less';
 
 interface Props {
@@ -55,12 +55,14 @@ const TableList: React.FC<Props> = (props: any) => {
     actionColumnProps,
     editorBtnProps,
 
+    hideOperate,
     hideDelete,
     hideCopy,
     hideMove,
     hideAdd,
     hideEdit,
 
+    operation,
     addItem,
     copyItem,
     moveItem,
@@ -69,17 +71,11 @@ const TableList: React.FC<Props> = (props: any) => {
   } = props;
 
   const { colHeaderText, ...otherActionColumnProps } = actionColumnProps;
-
-
-  const configCtx = useContext(ConfigProvider.ConfigContext);
-  const t = translation(configCtx);
-
   const paginationConfig = {
     size: 'small',
     hideOnSinglePage: true,
     ...pagination,
   };
-
   const columnSchema = schema?.items?.properties || {};
 
   const [visible, setVisible] = useState(false);
@@ -92,34 +88,38 @@ const TableList: React.FC<Props> = (props: any) => {
   };
 
   const handleAdd = () => {
-    indexRef.current = -1;
     setVisible(true);
+    addItem();
   };
 
-  const handleDrawerClose = (data: any) => {
-    setVisible(false);
-    setItemData(null);
-    if (!data) {
-      return;
-    }
-   
-    if (indexRef.current === -1) {
-      addItem(data);
+  const handleRepeal = () => {
+    if (!indexRef.current && indexRef.current !== 0) {
+      operation.remove(fields.length-1);
     } else {
-      form.setFieldValue([...rootPath, indexRef.current], data);
+      form.setFieldValue([...rootPath, indexRef.current], itemData);
     }
-    indexRef.current === null;
+    hanldeConfirm();
   };
 
-  const columns: TableColumnsType<FormListFieldData> = Object.keys(columnSchema).map(dataIndex => {
-    const { title, tooltip, width } = columnSchema[dataIndex];
-    const tooltipProps = getTooltip(tooltip);
+  const hanldeConfirm = () => {
+    setItemData(null);
+    setVisible(false);
+    indexRef.current = null;
+  };
 
+  const columns: any = sortProperties(Object.entries(columnSchema)).map(([dataIndex, item]) => {
+    const { required, title, tooltip, width, columnHidden } = item;
+    if (columnHidden) {
+      return null;
+    }
+
+    const tooltipProps = getTooltip(tooltip);
     return {
       dataIndex,
       width,
       title: (
         <>
+          {required && <span style={{ color: 'red', marginRight: '3px' }}>*</span>}
           <span>{title}</span>
           {tooltipProps && (
             <Tooltip placement='top' {...tooltipProps}>
@@ -142,9 +142,9 @@ const TableList: React.FC<Props> = (props: any) => {
         return renderCore({ schema: fieldSchema, parentPath: [field.name], rootPath: [...rootPath, field.name] });
       }
     }
-  });
+  }).filter(item => item);
 
-  if (!readOnly) {
+  if (!readOnly && !hideOperate) {
     columns.push({
       title: colHeaderText,
       width: '190px',
@@ -228,8 +228,11 @@ const TableList: React.FC<Props> = (props: any) => {
           data={itemData}
           widgets={widgets}
           configContext={configContext}
-          onClose={handleDrawerClose}
-        />
+          onClose={handleRepeal}
+          onConfirm={hanldeConfirm}
+        >
+          {renderCore({ schema: schema.items, parentPath: [fields.length - 1], rootPath: [...rootPath, fields.length - 1] })}
+        </FormDrawer>
       )}
     </div>
   );

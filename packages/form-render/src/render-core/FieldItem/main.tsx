@@ -190,7 +190,7 @@ export default (props: any) => {
       wrapperCol={fieldCol}
       noStyle={noStyle}
       dependencies={dependencies}
-      validateTrigger={ validateTrigger ?? fieldRef?.current?.validator ? 'onSubmit' : 'onChange' }
+      validateTrigger={ validateTrigger ?? (fieldRef?.current?.validator ? 'onSubmit' : 'onChange') }
     >
       {fieldProps.onStatusChange ? (
         <FieldWrapperStatus 
