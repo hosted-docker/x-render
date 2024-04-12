@@ -4,7 +4,7 @@ on:
   schedule:
     - cron: '0 7 * * *' # ron on 7am every day
   workflow_dispatch:
-  
+
 env:
   target_branch: ${{ secrets.target_branch && secrets.target_branch || 'master' }}
 
@@ -18,6 +18,10 @@ jobs:
         with:
           ref: ${{ env.target_branch }}     # set the branch to merge to
           fetch-depth: 0
+      - name: Git Identity
+        run: |
+          git config --global user.name 'beeant0512'
+          git config --global user.email 'huangxb0512@gmail.com'
       - name: Merge Upstream ${{ env.target_branch }}
         uses: xbeeant/merge-upstream@v1.1
         with:
